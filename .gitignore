@@ -42,6 +42,7 @@ dist/
 
 # Tauri / Rust
 windows/src-tauri/target/
+windows/installers/
 windows/src-tauri/gen/
 target/
 
