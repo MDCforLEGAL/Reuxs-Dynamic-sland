@@ -6,8 +6,8 @@
  *   GITHUB_OWNER = "your-username"
  *   GITHUB_REPO  = "your-repo"
  */
-export const GITHUB_OWNER = "MDCforLEGAL";
-export const GITHUB_REPO = "https://github.com/MDCforLEGAL/Reuxs-Dynamic-sland";
+export const GITHUB_OWNER = "https://github.com/MDCforLEGAL/";
+export const GITHUB_REPO = "https://github.com/MDCforLEGAL/Reuxs-Dynamic-sland/";
 
 export const APP_NAME = "ReuXs";
 export const APP_VERSION = "1.0.0";
