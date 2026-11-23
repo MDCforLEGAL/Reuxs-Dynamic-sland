@@ -65,16 +65,17 @@ jobs:
       - name: Stage installers
         shell: bash
         run: |
-          mkdir -p dist
-          cp src-tauri/target/release/bundle/msi/*.msi dist/ 2>/dev/null || true
-          cp src-tauri/target/release/bundle/nsis/*.exe dist/ 2>/dev/null || true
-          ls -R dist
+          # Keep the web build output (dist/) out of the release assets.
+          mkdir -p installers
+          cp src-tauri/target/release/bundle/msi/*.msi installers/ 2>/dev/null || true
+          cp src-tauri/target/release/bundle/nsis/*.exe installers/ 2>/dev/null || true
+          ls -l installers
 
       - name: Upload Windows artifacts
         uses: actions/upload-artifact@v4
         with:
           name: windows-installers
-          path: windows/dist/*
+          path: windows/installers/*
           if-no-files-found: error
 
   android:
@@ -200,5 +201,5 @@ jobs:
           GH_REPO: ${{ github.repository }}
           TAG: ${{ steps.tag.outputs.tag }}
         run: |
-          ls -lR dist
-          gh release upload "$TAG" dist/* --clobber
+          ls -l dist
+          gh release upload "$TAG" dist/*.msi dist/*.exe dist/*.apk --clobber
