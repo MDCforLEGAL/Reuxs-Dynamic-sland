@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="reuxs_obsidian">#FF000000</color>
+    <color name="reuxs_obsidian_soft">#FF09090B</color>
+    <color name="reuxs_blood_deep">#FF450A0A</color>
+    <color name="reuxs_blood">#FF7F1D1D</color>
+    <color name="reuxs_crimson">#FFEF4444</color>
+    <color name="reuxs_text_primary">#FFFAFAFA</color>
+    <color name="reuxs_text_secondary">#FFA1A1AA</color>
+    <color name="ic_launcher_background">#FF09090B</color>
+</resources>

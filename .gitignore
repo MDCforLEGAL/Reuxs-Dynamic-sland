@@ -8,6 +8,7 @@ local.properties
 
 # Log/OS Files
 *.log
+.DS_Store
 
 # Android Studio generated files and folders
 captures/
@@ -33,3 +34,18 @@ google-services.json
 
 # Android Profiling
 *.hprof
+
+# Node / frontend
+node_modules/
+dist/
+.vite/
+
+# Tauri / Rust
+windows/src-tauri/target/
+windows/src-tauri/gen/
+target/
+
+# Environment files (ReuXs needs no secrets)
+.env
+.env.*
+!.env.example
