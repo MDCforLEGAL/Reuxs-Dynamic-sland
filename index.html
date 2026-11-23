@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ReuXs — Material Capsule for Windows and Android</title>
+    <meta
+      name="description"
+      content="ReuXs: Windows ve Android için açık kaynak, düşük kaynak tüketimli Material Capsule (Dynamic Island). Canlı müzik modülü, albüm kapağı rengine bürünen kapsül ve bağımsız kontrol paneli."
+    />
+    <meta name="theme-color" content="#050505" />
+    <meta property="og:title" content="ReuXs — Material Capsule" />
+    <meta
+      property="og:description"
+      content="Crimson & Obsidian temalı kapsül: canlı müzik, dinamik albüm rengi, visualizer ve tam ayar paneli."
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="glow" aria-hidden="true"></div>
+
+    <header class="nav">
+      <div class="brand">
+        <span class="mark" aria-hidden="true"><span></span></span>
+        <span class="brand-text">
+          <strong>ReuXs</strong>
+          <small>Material Capsule</small>
+        </span>
+      </div>
+      <nav class="nav-links">
+        <a href="#features">Özellikler</a>
+        <a href="#music">Müzik</a>
+        <a href="#panel">Kontrol Paneli</a>
+        <a class="cta small" href="https://github.com/MDCforLEGAL/Reuxs-Dynamic-sland/releases/latest">İndir</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <p class="eyebrow">AÇIK KAYNAK · MIT · WINDOWS + ANDROID</p>
+        <h1>
+          Ekranının tepesinde<br />
+          <span class="crimson">yaşayan kapsül.</span>
+        </h1>
+        <p class="lede">
+          ReuXs; derin siyahtan kan kırmızısına akan bir Material Capsule (Dynamic Island)
+          deneyimi. Windows'ta şeffaf ve her zaman üstte, Android'de ön kamera deliğinin
+          etrafında. Canlı müzik, albüm kapağı rengine bürünen gradyan ve düşük kaynak tüketimi.
+        </p>
+
+        <div class="actions">
+          <a class="cta" href="https://github.com/MDCforLEGAL/Reuxs-Dynamic-sland/releases/latest">
+            Son sürümü indir
+          </a>
+          <a class="ghost" href="https://github.com/MDCforLEGAL/Reuxs-Dynamic-sland">GitHub deposu</a>
+        </div>
+
+        <div class="hero-capsule" aria-hidden="true">
+          <div class="capsule">
+            <span class="dot"></span>
+            <div class="capsule-text">
+              <strong>ReuXs</strong>
+              <small>Material Capsule</small>
+            </div>
+            <div class="bars">
+              <i></i><i></i><i></i><i></i><i></i>
+            </div>
+            <span class="time">05:00</span>
+          </div>
+          <p class="hint">Albüm kapağı çalınca kapsül o rengi alır.</p>
+        </div>
+      </section>
+
+      <section id="features" class="grid">
+        <article class="card">
+          <h3>Kapsül sadece gösterir</h3>
+          <p>
+            Kapsülde ayar menüsü yok. Durum, zamanlayıcı ve hızlı kontroller; geri kalan her
+            şey ayrı kontrol panelinde.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Sıfır secret, sıfır hesap</h3>
+          <p>
+            Müzik bilgisi doğrudan işletim sisteminin medya oturumundan okunur: Windows'ta SMTC,
+            Android'de MediaSessionManager. API anahtarı yok.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Otomatik güncelleme</h3>
+          <p>
+            Uygulama açılışta GitHub Releases'i denetler, yeni sürüm varsa sorar ve doğrudan
+            kurulum dosyasını indirir.
+          </p>
+        </article>
+      </section>
+
+      <section id="music" class="split">
+        <div>
+          <h2>Canlı müzik modülü</h2>
+          <p>
+            Şarkı adı, sanatçı, kapak ve oynatma durumu gerçek zamanlı gelir. Oynat/duraklat
+            doğrudan sistem oynatıcısına iletilir.
+          </p>
+          <ul class="ticks">
+            <li>Albüm kapağından baskın + vurgu rengi çıkarımı</li>
+            <li>Yumuşak geçişli gradyan ve kenarlık parlaması</li>
+            <li>Çubuk veya dalga visualizer — açılıp kapatılabilir</li>
+            <li>Kapak paleti kapatıldığında varsayılan Koyu Kırmızı &amp; Siyah</li>
+          </ul>
+        </div>
+        <div class="panel-preview" aria-hidden="true">
+          <div class="mini-row">
+            <span class="cover"></span>
+            <span class="mini-text">
+              <strong>Midnight Drive</strong>
+              <small>Synthwave Collective</small>
+            </span>
+            <span class="bars small"><i></i><i></i><i></i><i></i></span>
+          </div>
+          <div class="progress"><span></span></div>
+          <p class="mini-meta">1:24 / 3:48</p>
+        </div>
+      </section>
+
+      <section id="panel" class="split reverse">
+        <div class="panel-preview tall" aria-hidden="true">
+          <div class="pill-row"><span>Konum &amp; Boyut</span><i class="chip"></i></div>
+          <div class="pill-row"><span>Görünüm &amp; Renk</span><i class="chip"></i></div>
+          <div class="pill-row"><span>Müzik &amp; Visualizer</span><i class="chip"></i></div>
+          <div class="pill-row"><span>Genel &amp; Güncelleme</span><i class="chip"></i></div>
+          <div class="slider"><span style="width: 62%"></span></div>
+          <div class="swatches"><i class="s1"></i><i class="s2"></i><i class="s3"></i><i class="s4"></i></div>
+        </div>
+        <div>
+          <h2>ReuXs Kontrol Paneli</h2>
+          <p>
+            Uygulamayı açtığında karşına tam ekran bir ayar merkezi çıkar. Her kaydırma anında
+            kapsüle yansır ve cihazda saklanır.
+          </p>
+          <ul class="ticks">
+            <li>X / Y konumu, ölçek ve tek tıkla varsayılana sıfırlama</li>
+            <li>Opaklık, blur, köşe yuvarlaklığı ve parlama şiddeti</li>
+            <li>Dört tema modu: Koyu Kırmızı, Saf OLED, Özel renk, Albüm kapağı</li>
+            <li>Müzik modülü, palet ve visualizer anahtarları</li>
+            <li>Otomatik başlatma, geçici gizleme, güncelleme denetimi</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="install">
+        <h2>Kurulum</h2>
+        <div class="install-grid">
+          <div class="card">
+            <h3>Windows</h3>
+            <p>Tauri v2 · Rust + React. <code>.msi</code> veya <code>.exe</code> kurulumunu indir.</p>
+          </div>
+          <div class="card">
+            <h3>Android</h3>
+            <p>Kotlin + Jetpack Compose. <code>.apk</code> dosyasını indirip yükle, kapsül iznini ver.</p>
+          </div>
+          <div class="card">
+            <h3>Kaynak</h3>
+            <p>MIT lisanslı monorepo: <code>core/</code>, <code>windows/</code>, <code>android/</code>.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <span>© 2026 ReuXs Contributors · MIT</span>
+      <span class="links">
+        <a href="https://github.com/MDCforLEGAL/Reuxs-Dynamic-sland">GitHub</a>
+        <a href="https://github.com/MDCforLEGAL/Reuxs-Dynamic-sland/releases">Sürümler</a>
+      </span>
+    </footer>
+  </body>
+</html>
