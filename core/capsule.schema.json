@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/MDCforLEGAL/Reuxs-Dynamic-sland/capsule.schema.json",
+  "$id": "https://github.com/MDCforLEGAL/Reuxs-Dynamic-sland/core/capsule.schema.json",
   "title": "ReuXs Capsule Snapshot",
   "description": "Platform independent capsule state shared by the Windows (React) and Android (Compose) clients.",
   "type": "object",

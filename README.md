@@ -46,10 +46,17 @@ Full instructions: [docs/SETUP.md](docs/SETUP.md) · Architecture: [docs/ARCHITE
 
 ## Releases
 
-Publish a release on GitHub and [.github/workflows/release.yml](.github/workflows/release.yml) builds and attaches:
+Releases are automatic: push a version tag and the workflow builds both platforms and publishes the GitHub Release with the installers attached.
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
 
 - Windows: `.msi` and NSIS `.exe` (Tauri, unsigned)
 - Android: `ReuXs-<tag>.apk` (debug-signed Gradle build, installable)
+
+[.github/workflows/release.yml](.github/workflows/release.yml) uses only the built-in `GITHUB_TOKEN` and can also be started from **Actions → Release → Run workflow** or by publishing a release manually.
 
 ## License
 

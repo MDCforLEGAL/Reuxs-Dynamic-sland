@@ -1,42 +1,57 @@
-# ReuXs — Sürüm Yayınlama (sıfır secret)
+# ReuXs — Sürüm Yayınlama (otomatik, sıfır secret)
 
-## Akış
+## Otomatik akış (önerilen)
 
-1. GitHub → **Releases → Draft a new release**
-2. Etiketi gir (örn. `v1.0.0`) ve **Publish release**'e bas.
-3. `.github/workflows/release.yml` (`on: release: types: [published]`) tetiklenir:
-   - `windows-latest`: `npm ci` → `npm run tauri build` → `.msi` + NSIS `.exe` yüklenir.
-   - `ubuntu-latest`: JDK 17 + Android SDK + Gradle 8.10.2 → `gradle assembleDebug` →
-     `ReuXs-<tag>.apk` yüklenir.
-4. Her iki iş de yalnızca yerleşik **`GITHUB_TOKEN`** ile (`permissions: contents: write`)
-   `gh release upload` kullanır.
+Tek komut; gerisini GitHub Actions yapar:
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+1. `.github/workflows/release.yml` → `on: push: tags: ["v*"]` tetiklenir.
+2. `windows-latest`: `npm ci` → `npm run tauri build` → `.msi` + NSIS `.exe`.
+3. `ubuntu-latest`: JDK 17 + Android SDK + Gradle 8.10.2 → `assembleDebug` →
+   `ReuXs-v1.0.0.apk`.
+4. `publish`: her iki derlemenin çıktısını indirir, `gh release create` ile sürümü
+   (yoksa) oluşturur, `gh release upload --clobber` ile dosyaları ekler.
+
+Aynı iş akışı iki şekilde de elle çalıştırılabilir (ikisi de otomatik akışın aynısını
+yapar, mevcut sürümün dosyalarının üzerine yazar):
+
+- GitHub → **Actions → Release → Run workflow** ve tag gir (örn. `v1.0.0`).
+- GitHub → **Releases → Draft a new release** → **Publish release**
+  (`on: release: types: [published]`).
 
 **Kullanılmayanlar:** `TAURI_SIGNING_PRIVATE_KEY`, keystore, imzalama sertifikası,
-PAT, ek GitHub Secret. Tauri paketi imzasız, APK ise Gradle'ın ürettiği debug anahtarıyla
-imzalanır (depoya yazılmaz).
+PAT, ek GitHub Secret. Yalnızca yerleşik **`GITHUB_TOKEN`** (`permissions: contents: write`)
+kullanılır. Tauri paketi imzasız, APK Gradle'ın ürettiği debug anahtarıyla imzalanır
+(depoya yazılmaz).
 
-## Yer tutucular (`<OWNER>/<REPO>`)
+## Depo bilgileri (gömülü)
 
-Kendi GitHub kullanıcı adınız ve depo adınızla değiştirmeniz gereken dosyalar:
+Güncelleme denetimi bu depoyu okur — **başka yerde değiştirilecek yer tutucu yok**:
 
-| Dosya | Alan |
+| Değer | Nerede |
 | --- | --- |
-| `core/src/config.ts` | `GITHUB_OWNER`, `GITHUB_REPO` (Windows güncelleme denetimi) |
-| `android/app/src/main/res/values/strings.xml` | `reuxs_repo_owner`, `reuxs_repo_name` |
-| `windows/src-tauri/Cargo.toml` | `repository` alanı |
-| `core/capsule.schema.json` | `$id` (yalnızca belge amaçlı) |
+| `MDCforLEGAL` / `Reuxs-Dynamic-sland` | `core/src/config.ts` → `GITHUB_OWNER`, `GITHUB_REPO` |
+| aynı | `android/app/src/main/res/values/strings.xml` → `reuxs_repo_owner`, `reuxs_repo_name` |
+| aynı | `windows/src-tauri/Cargo.toml` → `repository` |
+| aynı | `core/capsule.schema.json` → `$id` |
 
-> `GITHUB_OWNER`/`GITHUB_REPO` değerleri değişene kadar güncelleme denetimi sessizce
-> başarısız olur; kapsül normal çalışmaya devam eder.
+Depo adı/hesabı değişirse yukarıdaki dört dosyayı güncellemek yeterlidir.
 
 ## Sürüm numarası nerede?
 
-Aynı sürümü üç yerde tutun (yeni sürümde hepsini güncelleyin):
+Aynı sürümü dört yerde tutun (yeni sürümde hepsini güncelleyin, sonra tag'i push edin):
 
 - `windows/package.json` → `version`
 - `windows/src-tauri/tauri.conf.json` → `version`
 - `android/app/build.gradle.kts` → `versionName` (+ `versionCode`)
 - `core/src/config.ts` → `APP_VERSION` (güncelleme karşılaştırmasının referansı)
+
+> Tag ile `APP_VERSION` uyuşmazsa uygulama kendini eski sanıp "Güncelleme Mevcut"
+> rozetini gösterebilir; ikisini birlikte güncelleyin.
 
 ## Yerel doğrulama
 

@@ -80,11 +80,12 @@ Android tarafında aynı kurallar `CapsuleState.kt` / `CapsuleRuntime.kt` içind
 
 ## 5. Güncelleme denetleyicisi
 
-Her iki uygulama açılışta `https://api.github.com/repos/<OWNER>/<REPO>/releases/latest`
+Her iki uygulama açılışta `https://api.github.com/repos/MDCforLEGAL/Reuxs-Dynamic-sland/releases/latest`
 adresine **anahtarsız** istek atar. Yeni sürüm varsa kapsülde kırmızı-siyah
 **"Güncelleme Mevcut"** rozeti görünür; tıklanınca varsayılan tarayıcıda indirme sayfası açılır.
 
-Değiştirilmesi gereken yer tutucular için [RELEASE.md](RELEASE.md#placeholders) bölümüne bakın.
+Yeni sürüm yayınlama (etiket push'u ile tamamen otomatik) için
+[RELEASE.md](RELEASE.md) bölümüne bakın.
 
 ## 6. Simgeler
 

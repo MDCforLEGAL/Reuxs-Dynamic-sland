@@ -78,7 +78,7 @@ Hareket: `spring(stiffness: 420, damping: 34, mass: 0.9)` — tok, aşırı sal�
 
 ## Güncelleme akışı
 
-1. Açılıştan ~1.2 s sonra `GET https://api.github.com/repos/<OWNER>/<REPO>/releases/latest`
+1. Açılıştan ~1.2 s sonra `GET https://api.github.com/repos/MDCforLEGAL/Reuxs-Dynamic-sland/releases/latest`
 2. `tag_name` ile yerel sürüm semver olarak karşılaştırılır.
 3. Yeni sürüm varsa kırmızı-siyah rozet; tıklanınca `html_url` (yoksa releases sayfası)
    varsayılan tarayıcıda açılır. İstek başarısız olursa rozet gösterilmez, hata sessizce
