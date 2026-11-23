@@ -32,12 +32,26 @@ npm run dev            # http://localhost:1420
 Tarayıcıda çalışırken arka plana masaüstü benzeri koyu bir zemin çizilir; Tauri
 penceresinde arka plan tamamen şeffaftır.
 
+### İki pencere
+
+| Etiket | İçerik |
+| --- | --- |
+| `main` | Kapsül: şeffaf, çerçevesiz, her zaman üstte, görev çubuğunda gizli |
+| `settings` | **ReuXs Kontrol Paneli**: normal, yeniden boyutlandırılabilir pencere |
+
+Kapsülün genişletilmiş görünümündeki dişli simgesi (veya `Ctrl+S`) kontrol panelini açar.
+Konum/ölçek/opaklık gibi ayarlar panelde değişir, kapsüle anında yansır.
+
 ### Pencere davranışı
 `windows/src-tauri/tauri.conf.json` içinde tanımlıdır: `transparent`, `decorations: false`,
 `alwaysOnTop: true`, `skipTaskbar: true`, `resizable: false`. Konumlandırma
-`src-tauri/src/lib.rs` içindeki `position_top_center` fonksiyonuyla yapılır (birincil
-monitörün üst-ortası, 16 px boşluk). Rust tarafı bilinçli olarak minimal tutuldu:
-Win32 çağrısı yok, tüm animasyon/zamanlayıcı mantığı React tarafında.
+`src-tauri/src/lib.rs` içindeki `apply_layout` fonksiyonuyla yapılır (birincil monitörün
+üst-ortası + kullanıcı ofsetleri, ölçekle birlikte pencere boyutu). Rust tarafı bilinçli
+olarak minimal tutuldu: Win32 interop yok; medya bilgisi SMTC (`windows` crate) üzerinden,
+1 saniyelik arka plan iş parçacığında okunur ve `now_playing` komutuyla sunulur.
+
+> Müzik modülü ek bir kurulum/anahtar istemez: Spotify, YouTube Music, VLC veya Windows
+> Medya Oynatıcı çalarken kapsül otomatik olarak şarkıyı gösterir.
 
 ## 3. Android
 
@@ -57,7 +71,8 @@ cd android && gradle wrapper --gradle-version 8.10.2
 ### İzinler
 1. **Ekran üstü (SYSTEM_ALERT_WINDOW)** — kapsül overlay'i için zorunlu.
    Uygulama içindeki "Ekran üstü kapsül → İzin ver" düğmesi ilgili ayar sayfasını açar.
-2. **Bildirim erişimi** — isteğe bağlı; bekleyen bildirim sayısını gösterir.
+2. **Bildirim erişimi** — bekleyen bildirim sayısını **ve canlı müzik modülünü** besler
+   (`MediaSessionManager.getActiveSessions` bu izni ister).
    `Ayarlar → Bildirim erişimi → ReuXs`.
 3. **Bildirim izni (Android 13+)** — ön plan servisinin bildirimi için.
 
@@ -77,6 +92,23 @@ burada yaşar:
 - `core/capsule.schema.json` — JSON şeması
 
 Android tarafında aynı kurallar `CapsuleState.kt` / `CapsuleRuntime.kt` içinde birebir uygulanır.
+
+- `core/src/settings.ts` — `ReuXsSettings`, varsayılanlar, kalıcılık ve `capsuleAppearance()`
+- `core/src/palette.ts` — albüm kapağından baskın + vurgu rengi çıkarımı
+- `core/src/media.ts` — `NowPlaying` modeli ve yardımcıları
+
+Android aynası: `SettingsStore.kt` (SharedPreferences + `StateFlow`), `MediaMonitor.kt`
+(MediaSessionManager + `PaletteExtractor`).
+
+## 4b. Kontrol Paneli (ayarlar)
+
+Kapsülün içinde ayar menüsü **yoktur**. Tüm özelleştirme ayrı yüzeyde yaşar:
+
+- Windows: `main` penceresindeki dişli → `settings` penceresi (`windows/src/SettingsApp.tsx`)
+- Android: uygulamayı açınca gelen kontrol paneli (`MainActivity.kt`)
+
+Her değişiklik `SettingsStore`/`useSettings` üzerinden kaydedilir ve kapsüle anında yayılır
+(Windows'ta Tauri event + `storage` event, Android'de `StateFlow`).
 
 ## 5. Güncelleme denetleyicisi
 

@@ -107,6 +107,35 @@ export function DownloadIcon(props: IconProps) {
   );
 }
 
+export function NextIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M6 5.5v13l9-6.5-9-6.5Z" fill="currentColor" stroke="none" />
+      <path d="M18.5 5v14" />
+    </svg>
+  );
+}
+
+export function SettingsIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <circle cx="12" cy="12" r="3.1" />
+      <path d="M19.4 14.4a7.6 7.6 0 0 0 0-4.8l1.7-1.3-1.9-3.3-2 .8a7.6 7.6 0 0 0-4.1-2.4L12.7 1h-3.8l-.4 2.4a7.6 7.6 0 0 0-4.1 2.4l-2-.8L.5 8.3l1.7 1.3a7.6 7.6 0 0 0 0 4.8L.5 15.7l1.9 3.3 2-.8a7.6 7.6 0 0 0 4.1 2.4l.4 2.4h3.8l.4-2.4a7.6 7.6 0 0 0 4.1-2.4l2 .8 1.9-3.3-1.7-1.3Z" />
+    </svg>
+  );
+}
+
+/** Small album placeholder used when a track has no cover. */
+export function MusicIcon(props: IconProps) {
+  return (
+    <svg {...base} {...props}>
+      <path d="M9 18V6.5l9-2v9.5" />
+      <circle cx="6.5" cy="18" r="2.5" />
+      <circle cx="15.5" cy="16" r="2.5" />
+    </svg>
+  );
+}
+
 export function TimerIcon(props: IconProps) {
   return (
     <svg {...base} {...props}>

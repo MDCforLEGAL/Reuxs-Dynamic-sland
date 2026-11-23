@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Minimal capability set for the ReuXs capsule window.",
-  "windows": ["main"],
+  "description": "Minimal capability set for the ReuXs capsule and control panel windows.",
+  "windows": ["main", "settings"],
   "permissions": ["core:default", "core:window:allow-start-dragging"]
 }

@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import App from "./App";
+import App, { isSettingsWindow } from "./App";
 import { isTauri } from "./lib/os";
 import "./styles.css";
 
@@ -8,6 +8,9 @@ import "./styles.css";
 // transparent Tauri window still looks right.
 if (!isTauri()) {
   document.documentElement.classList.add("browser-shell");
+}
+if (isSettingsWindow()) {
+  document.documentElement.classList.add("settings-shell");
 }
 
 const container = document.getElementById("root");

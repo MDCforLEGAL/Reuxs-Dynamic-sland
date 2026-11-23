@@ -1,22 +1,38 @@
 import { motion } from "framer-motion";
-import { APP_TAGLINE, APP_VERSION, formatClock } from "@core";
+import {
+  APP_TAGLINE,
+  APP_VERSION,
+  formatClock,
+  type AlbumPalette,
+  type NowPlaying,
+  type VisualizerStyle
+} from "@core";
 import type { BatteryState } from "../hooks/useBattery";
+import type { MediaAction } from "../hooks/useNowPlaying";
 import type { TimerApi } from "../hooks/useTimer";
 import type { UpdateApi } from "../hooks/useUpdate";
+import { MusicCard } from "./MusicCard";
 import { QuickActions } from "./QuickActions";
 import { StatusBadge } from "./StatusBadge";
 import { TimerPanel } from "./TimerPanel";
 import { UpdateBadge } from "./UpdateBadge";
-import { BatteryIcon, CapsuleGlyph, ChevronDownIcon } from "./icons";
+import { BatteryIcon, CapsuleGlyph, ChevronDownIcon, SettingsIcon } from "./icons";
 
 interface ExpandedCapsuleProps {
   clock: Date;
   battery: BatteryState;
   timer: TimerApi;
   update: UpdateApi;
+  track: NowPlaying | null;
+  palette: AlbumPalette | null;
+  accent: string;
+  visualizer: boolean;
+  visualizerStyle: VisualizerStyle;
+  onControl: (action: MediaAction) => void;
   onCollapse: () => void;
   onSplit: () => void;
   onFocus: () => void;
+  onOpenSettings: () => void;
 }
 
 export function ExpandedCapsule({
@@ -24,9 +40,16 @@ export function ExpandedCapsule({
   battery,
   timer,
   update,
+  track,
+  palette,
+  accent,
+  visualizer,
+  visualizerStyle,
+  onControl,
   onCollapse,
   onSplit,
-  onFocus
+  onFocus,
+  onOpenSettings
 }: ExpandedCapsuleProps) {
   return (
     <motion.div
@@ -47,10 +70,19 @@ export function ExpandedCapsule({
           </span>
         </div>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-1.5">
           <span className="font-mono text-[13px] tabular-nums text-ink-50">
             {formatClock(clock)}
           </span>
+          <button
+            type="button"
+            onClick={onOpenSettings}
+            aria-label="ReuXs Kontrol Paneli"
+            title="ReuXs Kontrol Paneli"
+            className="grid h-7 w-7 place-items-center rounded-full text-ink-400 transition-colors hover:bg-white/5 hover:text-white"
+          >
+            <SettingsIcon className="h-3.5 w-3.5" />
+          </button>
           <button
             type="button"
             onClick={onCollapse}
@@ -74,6 +106,14 @@ export function ExpandedCapsule({
       </div>
 
       <div className="flex flex-col gap-1.5 px-3 pb-3">
+        <MusicCard
+          track={track}
+          palette={palette}
+          accent={accent}
+          visualizer={visualizer}
+          visualizerStyle={visualizerStyle}
+          onControl={onControl}
+        />
         <TimerPanel timer={timer} />
         <QuickActions
           checking={update.checking}

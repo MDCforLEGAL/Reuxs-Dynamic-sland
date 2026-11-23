@@ -76,6 +76,36 @@ dakikada 4 kez okunur. Android'de overlay servisi 250 ms'lik tek bir coroutine t
 
 Hareket: `spring(stiffness: 420, damping: 34, mass: 0.9)` — tok, aşırı salınımsız.
 
+## Kontrol Paneli ↔ Kapsül ayrımı
+
+Tek kural: **kapsül gösterir, panel ayarlar.**
+
+```
+Windows:  settings penceresi (React)  ──emit('reuxs://settings-changed')──►  main penceresi
+          localStorage yazımı           + storage event (aynı origin)
+
+Android:  MainActivity (Compose)  ──SettingsStore.update()──►  StateFlow  ──►  overlay servisi
+          SharedPreferences yazımı                            (collect, anında recompose)
+```
+
+`core/src/settings.ts` (`ReuXsSettings`, `DEFAULT_SETTINGS`, `capsuleAppearance`) ile
+`android/.../SettingsStore.kt` aynı alanları ve aynı renk matematiğini taşır. Konum/ölçek
+Windows'ta gerçek pencereye uygulanır (`apply_capsule_layout` Rust komutu), Android'de
+`WindowManager.LayoutParams.x/y` + Compose `LocalDensity` ölçeklemesiyle uygulanır.
+
+## Medya köprüsü (sıfır secret)
+
+| | Windows | Android |
+| --- | --- | --- |
+| Kaynak | `GlobalSystemMediaTransportControlsSessionManager` (Rust, `windows` crate) | `MediaSessionManager.getActiveSessions()` |
+| Kapak | `IRandomAccessStreamReference` → base64 data URL | `MediaMetadata.getBitmap()` → 128 px'e küçültülür |
+| Durum | 1 sn'lik arka plan iş parçacığı, `now_playing` komutu önbelleği okur | 1 sn'lik Handler döngüsü, `CapsuleRuntime`'a yayınlar |
+| Kontrol | `TryTogglePlayPauseAsync` / `TrySkipNextAsync` | `MediaController.transportControls` |
+
+Palet: Windows'ta canvas üzerinde 34×34 örnek + 4-bit kuantalama; Android'de 24×24 örnek +
+aynı algoritma (`PaletteExtractor`). Sonuç `capsuleAppearance()` içinde gradyan, kenarlık ve
+parlama rengine dönüşür. Albüm kapağı hiçbir zaman cihazdan çıkmaz.
+
 ## Güncelleme akışı
 
 1. Açılıştan ~1.2 s sonra `GET https://api.github.com/repos/MDCforLEGAL/Reuxs-Dynamic-sland/releases/latest`
@@ -83,3 +113,5 @@ Hareket: `spring(stiffness: 420, damping: 34, mass: 0.9)` — tok, aşırı sal�
 3. Yeni sürüm varsa kırmızı-siyah rozet; tıklanınca `html_url` (yoksa releases sayfası)
    varsayılan tarayıcıda açılır. İstek başarısız olursa rozet gösterilmez, hata sessizce
    yutulur (çevrimdışı kullanım bozulmaz).
+4. Sürümde `.apk` / `.exe` asset'i varsa doğrudan o dosya bağlanır; Android kontrol paneli
+   açılışta bulduğu yeni sürümü bir diyalogla sorar.

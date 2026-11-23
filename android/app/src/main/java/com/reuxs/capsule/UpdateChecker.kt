@@ -14,6 +14,8 @@ data class UpdateInfo(
     val currentVersion: String = BuildConfig.VERSION_NAME,
     val latestVersion: String? = null,
     val downloadUrl: String = "",
+    /** Direct `.apk` asset of the release, when the workflow attached one. */
+    val apkUrl: String? = null,
     val checked: Boolean = false,
     val error: String? = null
 )
@@ -58,6 +60,7 @@ object UpdateChecker {
                 currentVersion = BuildConfig.VERSION_NAME,
                 latestVersion = tag.ifBlank { null },
                 downloadUrl = url,
+                apkUrl = findAsset(json, ".apk"),
                 checked = true
             )
         } catch (error: IOException) {
@@ -69,6 +72,18 @@ object UpdateChecker {
         } finally {
             connection?.disconnect()
         }
+    }
+
+    /** First release asset whose name ends with [suffix]. */
+    private fun findAsset(json: JSONObject, suffix: String): String? {
+        val assets = json.optJSONArray("assets") ?: return null
+        for (index in 0 until assets.length()) {
+            val asset = assets.optJSONObject(index) ?: continue
+            val name = asset.optString("name").lowercase()
+            val download = asset.optString("browser_download_url")
+            if (name.endsWith(suffix) && download.isNotBlank()) return download
+        }
+        return null
     }
 
     /** Semver-ish comparison: returns true when `latest` is newer than `current`. */

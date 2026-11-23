@@ -1,0 +1,40 @@
+name: Pages
+
+# Publishes the static ReuXs site (site/) to the `gh-pages` branch.
+#
+# GitHub Pages is configured to serve that branch (Settings → Pages → branch:
+# gh-pages / root), so every push to main that touches site/ updates the live
+# page at https://mdcforlegal.github.io/Reuxs-Dynamic-sland/
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: reuxs-pages
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    name: Deploy site/ to gh-pages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Publish
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
+          publish_branch: gh-pages
+          commit_message: "Publish ReuXs site (${{ github.sha }})"
+          # .nojekyll keeps files that start with an underscore working.
+          enable_jekyll: false

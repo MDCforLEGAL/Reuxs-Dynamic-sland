@@ -60,3 +60,82 @@ button {
   outline: 2px solid rgba(248, 113, 113, 0.7);
   outline-offset: 2px;
 }
+
+/* ------------------------------------------------------- audio visualizer */
+
+.reuxs-bar {
+  display: block;
+  transform-origin: bottom center;
+  border-radius: 999px;
+  animation-name: reuxs-bar-pulse;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  will-change: transform;
+}
+
+.reuxs-bar--idle {
+  animation-play-state: paused;
+  transform: scaleY(0.32);
+}
+
+@keyframes reuxs-bar-pulse {
+  0%,
+  100% {
+    transform: scaleY(0.32);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+/* ---------------------------------------------------- control panel window */
+
+html.settings-shell body,
+html.settings-shell #root {
+  background: #050505;
+  overflow: hidden;
+}
+
+html.settings-shell body {
+  user-select: text;
+  -webkit-user-select: text;
+  cursor: auto;
+}
+
+html.settings-shell button {
+  cursor: pointer;
+}
+
+.reuxs-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  outline: none;
+  cursor: pointer;
+}
+
+.reuxs-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: #ef4444;
+  border: 2px solid #0a0a0a;
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.45);
+}
+
+.reuxs-slider::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: #ef4444;
+  border: 2px solid #0a0a0a;
+}
+
+.reuxs-slider:focus-visible {
+  outline: 2px solid rgba(248, 113, 113, 0.5);
+  outline-offset: 4px;
+}

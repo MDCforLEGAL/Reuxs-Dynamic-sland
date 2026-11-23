@@ -82,12 +82,20 @@ Aynı sürümü dört yerde tutun (yeni sürümde hepsini güncelleyin, sonra ta
 > Tag ile `APP_VERSION` uyuşmazsa uygulama kendini eski sanıp "Güncelleme Mevcut"
 > rozetini gösterebilir; ikisini birlikte güncelleyin.
 
+## CI ve site
+
+- `.github/workflows/ci.yml` — her `main` push'unda Windows (`npm run build` + `cargo check`)
+  ve Android (`assembleDebug`) derleme kontrolü. Hata varsa annotation olarak görünür.
+- `.github/workflows/pages.yml` — `site/` klasörünü **`gh-pages`** dalına yayınlar. GitHub
+  Pages ayarı: Settings → Pages → Source: *Deploy from a branch* → `gh-pages` / root.
+  Yayın adresi: https://mdcforlegal.github.io/Reuxs-Dynamic-sland/
+
 ## Yerel doğrulama
 
 ```bash
 node tools/generate-icons.mjs
 npm --prefix windows run build        # tsc --noEmit + vite build
-cd windows/src-tauri && cargo check    # Rust kabuğu
+cd windows/src-tauri && cargo check    # Rust kabuğu + SMTC köprüsü
 cd android && gradle assembleDebug     # APK
 ```
 

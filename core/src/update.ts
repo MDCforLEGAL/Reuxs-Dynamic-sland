@@ -1,6 +1,12 @@
 /** In-app update check against the GitHub REST API (no secrets). */
 import { APP_VERSION, releasesApiUrl, releasesPageUrl } from "./config";
 
+export interface GitHubAsset {
+  name?: string;
+  browser_download_url?: string;
+  size?: number;
+}
+
 export interface GitHubRelease {
   tag_name?: string;
   name?: string | null;
@@ -9,6 +15,7 @@ export interface GitHubRelease {
   published_at?: string | null;
   prerelease?: boolean;
   draft?: boolean;
+  assets?: GitHubAsset[];
 }
 
 export interface UpdateStatus {
@@ -16,6 +23,10 @@ export interface UpdateStatus {
   currentVersion: string;
   latestVersion: string | null;
   downloadUrl: string;
+  /** Direct `.apk` asset of the release, when it exists. */
+  apkUrl: string | null;
+  /** Direct Windows installer (`.exe` / `.msi`) asset, when it exists. */
+  windowsUrl: string | null;
   publishedAt: string | null;
   checked: boolean;
   error: string | null;
@@ -26,10 +37,25 @@ export const UPDATE_IDLE: UpdateStatus = {
   currentVersion: APP_VERSION,
   latestVersion: null,
   downloadUrl: releasesPageUrl(),
+  apkUrl: null,
+  windowsUrl: null,
   publishedAt: null,
   checked: false,
   error: null
 };
+
+/** First asset whose name matches, newest releases list installers in order. */
+export function findAssetUrl(
+  assets: GitHubAsset[] | undefined,
+  matcher: (name: string) => boolean
+): string | null {
+  if (!assets) return null;
+  for (const asset of assets) {
+    const name = (asset.name ?? "").toLowerCase();
+    if (asset.browser_download_url && matcher(name)) return asset.browser_download_url;
+  }
+  return null;
+}
 
 export function normalizeVersion(version: string | null | undefined): string {
   return String(version ?? "").trim().replace(/^v/i, "");
@@ -69,6 +95,11 @@ export function parseRelease(release: GitHubRelease, current: string = APP_VERSI
     currentVersion: current,
     latestVersion,
     downloadUrl: release.html_url || releasesPageUrl(),
+    apkUrl: findAssetUrl(release.assets, (name) => name.endsWith(".apk")),
+    windowsUrl: findAssetUrl(
+      release.assets,
+      (name) => name.endsWith(".exe") || name.endsWith(".msi")
+    ),
     publishedAt: release.published_at ?? null,
     checked: true,
     error: null

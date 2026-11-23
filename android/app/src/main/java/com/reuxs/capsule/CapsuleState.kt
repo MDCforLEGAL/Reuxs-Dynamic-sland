@@ -67,9 +67,12 @@ data class CapsuleSnapshot(
     val batteryPercent: Int? = null,
     val charging: Boolean = false,
     val notifications: Int = 0,
-    val update: UpdateInfo = UpdateInfo()
+    val update: UpdateInfo = UpdateInfo(),
+    val nowPlaying: NowPlaying? = null,
+    val palette: AlbumPalette? = null
 ) {
     val updateAvailable: Boolean get() = update.available
+    val hasMusic: Boolean get() = nowPlaying?.hasTrack == true
 }
 
 fun formatDuration(ms: Long): String {

@@ -40,6 +40,11 @@ object CapsuleRuntime {
         _snapshot.update { current -> current.copy(update = update) }
     }
 
+    /** Live media session state; null clears the music module. */
+    fun setNowPlaying(track: NowPlaying?, palette: AlbumPalette?) {
+        _snapshot.update { current -> current.copy(nowPlaying = track, palette = palette) }
+    }
+
     /** Called by the overlay ticker; keeps remaining time truthful. */
     fun tick(now: Long = SystemClock.elapsedRealtime()) {
         _snapshot.update { current ->

@@ -15,11 +15,15 @@ import android.os.BatteryManager
 import android.os.Build
 import android.os.IBinder
 import android.view.Gravity
+import android.view.View
 import android.view.WindowManager
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.ViewCompositionStrategy
+import androidx.compose.ui.unit.Density
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
@@ -33,8 +37,10 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 /**
- * Draws the ReuXs capsule over the system UI (top-center, around the front
- * camera cutout) and keeps it fed with time, battery and update state.
+ * Draws the ReuXs capsule over the system UI (top-centre, around the front
+ * camera cutout). The capsule only displays state and offers quick controls;
+ * every setting is edited in the control panel (MainActivity) and reaches the
+ * overlay through [SettingsStore].
  */
 class CapsuleOverlayService : Service() {
 
@@ -43,6 +49,7 @@ class CapsuleOverlayService : Service() {
     private lateinit var windowManager: WindowManager
     private lateinit var lifecycleOwner: OverlayLifecycleOwner
     private var capsuleView: ComposeView? = null
+    private var overlayParams: WindowManager.LayoutParams? = null
     private var batteryReceiver: BroadcastReceiver? = null
     private var ticker: Job? = null
 
@@ -50,6 +57,7 @@ class CapsuleOverlayService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        SettingsStore.init(applicationContext)
         startInForeground()
 
         windowManager = getSystemService(WindowManager::class.java)
@@ -57,10 +65,23 @@ class CapsuleOverlayService : Service() {
 
         attachOverlay()
         registerBatteryReceiver()
+
         ticker = scope.launch {
             while (isActive) {
                 CapsuleRuntime.tick()
                 delay(250L)
+            }
+        }
+
+        // Live settings: position, scale, visibility and the music module.
+        scope.launch {
+            SettingsStore.settings.collect { settings ->
+                applyWindowParams(settings)
+                if (settings.musicEnabled) {
+                    MediaMonitor.start(applicationContext)
+                } else {
+                    MediaMonitor.stop()
+                }
             }
         }
 
@@ -73,10 +94,12 @@ class CapsuleOverlayService : Service() {
 
     override fun onDestroy() {
         ticker?.cancel()
+        MediaMonitor.stop()
         capsuleView?.let { view ->
             runCatching { windowManager.removeView(view) }
         }
         capsuleView = null
+        overlayParams = null
         batteryReceiver?.let { receiver ->
             runCatching { unregisterReceiver(receiver) }
         }
@@ -128,6 +151,7 @@ class CapsuleOverlayService : Service() {
     }
 
     private fun attachOverlay() {
+        val settings = SettingsStore.settings.value
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.MATCH_PARENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
@@ -138,7 +162,8 @@ class CapsuleOverlayService : Service() {
             PixelFormat.TRANSLUCENT
         ).apply {
             gravity = Gravity.TOP or Gravity.CENTER_HORIZONTAL
-            y = dp(8)
+            x = dp(settings.offsetX)
+            y = dp(settings.offsetY + BASE_TOP_INSET_DP)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 layoutInDisplayCutoutMode =
                     WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
@@ -152,23 +177,50 @@ class CapsuleOverlayService : Service() {
             setViewTreeSavedStateRegistryOwner(lifecycleOwner)
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindow)
             setContent {
+                val currentSettings by SettingsStore.settings.collectAsState()
                 ReuXsTheme {
-                    val snapshot by CapsuleRuntime.snapshot.collectAsState()
-                    CapsuleOverlay(
-                        snapshot = snapshot,
-                        onEvent = CapsuleRuntime::dispatch,
-                        onToggleTimer = CapsuleRuntime::toggleTimer,
-                        onResetTimer = CapsuleRuntime::resetTimer,
-                        onSetDuration = CapsuleRuntime::setTimerDuration,
-                        onSplit = { CapsuleRuntime.dispatch(CapsuleEvent.Split) },
-                        onOpenUpdate = { openUrl(snapshot.update.downloadUrl) }
-                    )
+                    // Scaling through density scales every dp and sp at once, so
+                    // the capsule grows/shrinks exactly like a real device zoom.
+                    val density = LocalDensity.current
+                    CompositionLocalProvider(
+                        LocalDensity provides Density(
+                            density = density.density * currentSettings.scale,
+                            fontScale = density.fontScale * currentSettings.scale
+                        )
+                    ) {
+                        val snapshot by CapsuleRuntime.snapshot.collectAsState()
+                        CapsuleOverlay(
+                            snapshot = snapshot,
+                            settings = currentSettings,
+                            onEvent = CapsuleRuntime::dispatch,
+                            onToggleTimer = CapsuleRuntime::toggleTimer,
+                            onResetTimer = CapsuleRuntime::resetTimer,
+                            onSetDuration = CapsuleRuntime::setTimerDuration,
+                            onSplit = { CapsuleRuntime.dispatch(CapsuleEvent.Split) },
+                            onOpenUpdate = {
+                                openUrl(snapshot.update.apkUrl ?: snapshot.update.downloadUrl)
+                            },
+                            onTogglePlay = { MediaMonitor.togglePlay() }
+                        )
+                    }
                 }
             }
         }
 
         capsuleView = view
+        overlayParams = params
         runCatching { windowManager.addView(view, params) }
+        applyWindowParams(settings)
+    }
+
+    /** Moves / hides the overlay without recreating it. */
+    private fun applyWindowParams(settings: ReuxsSettings) {
+        val view = capsuleView ?: return
+        val params = overlayParams ?: return
+        params.x = dp(settings.offsetX)
+        params.y = dp(settings.offsetY + BASE_TOP_INSET_DP)
+        runCatching { windowManager.updateViewLayout(view, params) }
+        view.visibility = if (settings.capsuleHidden) View.GONE else View.VISIBLE
     }
 
     private fun registerBatteryReceiver() {
@@ -204,5 +256,6 @@ class CapsuleOverlayService : Service() {
     companion object {
         private const val CHANNEL_ID = "reuxs_capsule"
         private const val NOTIFICATION_ID = 1001
+        private const val BASE_TOP_INSET_DP = 8
     }
 }

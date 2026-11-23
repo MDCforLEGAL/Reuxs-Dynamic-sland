@@ -13,25 +13,32 @@ ReuXs brings the capsule idea to both platforms: a compact pill that lives at th
 
 ```
 core/        Platform independent capsule state machine (idle/compact/expanded/split-bubble),
-             timer model, theme tokens, GitHub update checker + capsule.schema.json
-windows/     Tauri v2 shell (src-tauri, deliberately minimal Rust) + React/TS capsule UI
-android/     Kotlin + Compose app, overlay service, notification listener, update checker
+             timer model, theme tokens, settings model, album palette, update checker
+windows/     Tauri v2 shell (capsule window + control panel window) + React/TS UI
+android/     Kotlin + Compose app: control panel (MainActivity) + overlay capsule service
+site/        Static ReuXs site, published to the `gh-pages` branch by pages.yml
 docs/        Setup, architecture and release guides
 tools/       Dependency-free icon generator
 ```
 
-## Features (MVP)
+## Features
 
 - **Dynamic status**: live clock, battery percentage, "ReuXs aktif" status badge.
+- **Live music module** (zero secrets): the capsule reads the operating system's media session — Windows **SMTC** (`Windows.Media.Control`) and Android **MediaSessionManager**. Title, artist, album cover, play state and position arrive in real time; play/pause is forwarded to the real player.
+- **Adaptive palette**: the cover is sampled locally (dominant + accent colour) and the capsule gradient/glow glides to those colours. Toggle it off and ReuXs falls back to the default Crimson & Obsidian theme.
+- **Music visualizer**: optional bars or wave animation inside the capsule, on by default, switchable from the panel.
+- **Independent control panel**: a full settings window (Windows) / screen (Android) — position, scale, opacity, blur, radius, glow, theme mode (crimson / OLED / custom / album), music switches, autostart, hide capsule and update check. Changes apply live and persist locally (`localStorage` on Windows, SharedPreferences on Android).
 - **Quick timer**: start / pause / reset, 1dk–5dk–15dk presets, drift-free timestamp math.
 - **Quick actions**: split into two bubbles, 25-minute focus preset, update check.
-- **Update badge**: on launch ReuXs reads `releases/latest` from the GitHub API; when a newer version exists the capsule shows a crimson **"Güncelleme Mevcut"** badge that opens the download page in the default browser.
+- **In-app updater**: on launch ReuXs reads `releases/latest` from the GitHub API, asks when a newer version exists and links straight to the `.apk` / installer asset.
 - **No command-line secrets, no signing**: builds are unsigned by design. Only the built-in `GITHUB_TOKEN` is required; releases can be fully automated with an optional GitHub-UI-generated `RELEASE_TOKEN`.
+
+Website: https://mdcforlegal.github.io/Reuxs-Dynamic-sland/ (served from the `gh-pages` branch, source in [`site/`](site)).
 
 ## Quick start
 
 ```bash
-# Windows capsule (dev)
+# Windows capsule + control panel (dev)
 npm --prefix windows install
 npm run tauri:dev          # needs Rust + WebView2
 
