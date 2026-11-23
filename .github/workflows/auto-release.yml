@@ -1,0 +1,58 @@
+name: Auto Release
+
+# Fully automatic releases without touching a terminal or the Releases page:
+# bump the version in the four source files and push to main. This workflow
+# creates the v<version> tag, which starts the "Release" workflow that builds
+# both platforms and creates the GitHub Release with the installers attached.
+#
+# One repository secret is required, and it is created entirely in the GitHub UI
+# (Settings -> Developer settings -> Personal access tokens -> Fine-grained token,
+# "Contents: Read and write" for this repository; then Settings -> Secrets and
+# variables -> Actions -> New repository secret -> name it RELEASE_TOKEN).
+# The default GITHUB_TOKEN cannot be used here: a tag pushed with it never
+# triggers another workflow.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: reuxs-auto-release
+  cancel-in-progress: false
+
+jobs:
+  tag:
+    name: Tag the pushed version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout with tags
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Create the release tag when the version is new
+        env:
+          TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          if [ -z "$TOKEN" ]; then
+            echo "::notice::RELEASE_TOKEN secret is not set — skipping automatic release. Add it in Settings → Secrets and variables → Actions to enable it."
+            exit 0
+          fi
+
+          VERSION="$(node -p "require('./windows/package.json').version")"
+          TAG="v$VERSION"
+          echo "Source version: $VERSION"
+
+          if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
+            echo "Tag $TAG already exists — nothing to release."
+            exit 0
+          fi
+
+          git tag "$TAG"
+          git push "https://x-access-token:${TOKEN}@github.com/${REPO}.git" "refs/tags/$TAG"
+          echo "Pushed $TAG — the Release workflow now builds and publishes it."

@@ -26,7 +26,7 @@ tools/       Dependency-free icon generator
 - **Quick timer**: start / pause / reset, 1dk–5dk–15dk presets, drift-free timestamp math.
 - **Quick actions**: split into two bubbles, 25-minute focus preset, update check.
 - **Update badge**: on launch ReuXs reads `releases/latest` from the GitHub API; when a newer version exists the capsule shows a crimson **"Güncelleme Mevcut"** badge that opens the download page in the default browser.
-- **No secrets, no signing**: builds are unsigned by design; the release workflow only uses `GITHUB_TOKEN`.
+- **No command-line secrets, no signing**: builds are unsigned by design. Only the built-in `GITHUB_TOKEN` is required; releases can be fully automated with an optional GitHub-UI-generated `RELEASE_TOKEN`.
 
 ## Quick start
 
@@ -46,7 +46,9 @@ Full instructions: [docs/SETUP.md](docs/SETUP.md) · Architecture: [docs/ARCHITE
 
 ## Releases
 
-Releases are automatic: push a version tag and the workflow builds both platforms and publishes the GitHub Release with the installers attached.
+Releases are automatic. Once the optional `RELEASE_TOKEN` secret is set (a fine-grained token generated in the GitHub UI, `Contents: Read and write`), just bump the version in `windows/package.json` and push to `main`: [auto-release.yml](.github/workflows/auto-release.yml) creates the `v<version>` tag, [release.yml](.github/workflows/release.yml) builds both platforms and publishes the GitHub Release with the installers attached.
+
+Without the secret you can still release by pushing a tag:
 
 ```bash
 git tag v1.0.0
@@ -56,7 +58,7 @@ git push origin v1.0.0
 - Windows: `.msi` and NSIS `.exe` (Tauri, unsigned)
 - Android: `ReuXs-<tag>.apk` (debug-signed Gradle build, installable)
 
-[.github/workflows/release.yml](.github/workflows/release.yml) uses only the built-in `GITHUB_TOKEN` and can also be started from **Actions → Release → Run workflow** or by publishing a release manually.
+The build workflow uses only the built-in `GITHUB_TOKEN` and can also be started from **Actions → Release → Run workflow** or by publishing a release manually.
 
 ## License
 

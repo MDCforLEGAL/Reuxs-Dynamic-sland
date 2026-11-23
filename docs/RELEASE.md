@@ -1,6 +1,34 @@
 # ReuXs — Sürüm Yayınlama (otomatik, sıfır secret)
 
-## Otomatik akış (önerilen)
+## Tam otomatik akış (komut yok)
+
+Bir kez şu secret'ı ekle (yalnızca GitHub arayüzü, komut satırı gerekmez):
+
+1. GitHub → **Settings → Developer settings → Personal access tokens → Fine-grained tokens
+   → Generate new token**, süre ve depo olarak `Reuxs-Dynamic-sland` seç,
+   izin: **Contents → Read and write**.
+2. Üretilen token'ı kopyala → depo → **Settings → Secrets and variables → Actions →
+   New repository secret** → ad: **`RELEASE_TOKEN`**.
+
+Sonrasında sürüm çıkarmak için sadece sürüm numaralarını güncelle ve `main`'e push et:
+
+```
+windows/package.json · windows/src-tauri/tauri.conf.json ·
+android/app/build.gradle.kts · core/src/config.ts
+```
+
+`.github/workflows/auto-release.yml` `windows/package.json` sürümünü okur, `v<sürüm>`
+etiketi yoksa oluşturur ve push eder. Etiket push'u `release.yml`'i tetikler; Windows ve
+Android derlenir, `publish` işi sürümü `gh release create` ile açar ve dosyaları ekler.
+Sürüm zaten etiketliyse hiçbir şey yapılmaz — aynı sürümü iki kez yayınlamaz.
+
+> `RELEASE_TOKEN` tanımlı değilse bu iş yalnızca bir uyarı bırakıp atlanır; aşağıdaki
+> manuel akışlar çalışmaya devam eder.
+>
+> Neden varsayılan `GITHUB_TOKEN` değil? Onunla push edilen bir etiket başka bir
+> workflow'u tetiklemez; PAT bu yüzden gerekli. Token yalnızca tag push'u için kullanılır.
+
+## Manuel / yedek akış
 
 Tek komut; gerisini GitHub Actions yapar:
 
@@ -23,10 +51,11 @@ yapar, mevcut sürümün dosyalarının üzerine yazar):
 - GitHub → **Releases → Draft a new release** → **Publish release**
   (`on: release: types: [published]`).
 
-**Kullanılmayanlar:** `TAURI_SIGNING_PRIVATE_KEY`, keystore, imzalama sertifikası,
-PAT, ek GitHub Secret. Yalnızca yerleşik **`GITHUB_TOKEN`** (`permissions: contents: write`)
-kullanılır. Tauri paketi imzasız, APK Gradle'ın ürettiği debug anahtarıyla imzalanır
-(depoya yazılmaz).
+**Kullanılan secret'lar:** yalnızca yerleşik **`GITHUB_TOKEN`** ve (tam otomatik akış için,
+opsiyonel) GitHub arayüzünden üretilen **`RELEASE_TOKEN`**. Komut satırıyla üretilen
+anahtar yok: Tauri paketi imzasız, APK Gradle'ın debug anahtarıyla imzalanır (depoya
+yazılmaz). `TAURI_SIGNING_PRIVATE_KEY`, keystore, imzalama sertifikası kullanılmıyor —
+bunlar `keytool`/cmd gerektirdiği için kapsam dışı.
 
 ## Depo bilgileri (gömülü)
 
