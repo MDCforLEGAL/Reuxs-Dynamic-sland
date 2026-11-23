@@ -8,7 +8,7 @@ export const GITHUB_OWNER = "MDCforLEGAL";
 export const GITHUB_REPO = "Reuxs-Dynamic-sland";
 
 export const APP_NAME = "ReuXs";
-export const APP_VERSION = "1.0.0";
+export const APP_VERSION = "1.1.0";
 export const APP_TAGLINE = "Material Capsule";
 
 /** `https://api.github.com/repos/{owner}/{repo}/releases/latest` */
