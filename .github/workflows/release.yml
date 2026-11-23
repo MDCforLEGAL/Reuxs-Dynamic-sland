@@ -128,7 +128,19 @@ jobs:
           gradle-version: "8.10.2"
 
       - name: Build debug APK
-        run: gradle assembleDebug --no-daemon --stacktrace
+        shell: bash
+        run: |
+          set -o pipefail
+          gradle assembleDebug --no-daemon 2>&1 | tee gradle-build.log
+
+      - name: Report build errors
+        if: failure()
+        shell: bash
+        run: |
+          grep -E "^(e: |w: .*: error)|error:|What went wrong|FAILURE: |Caused by:|> Task .* FAILED" gradle-build.log \
+            | head -n 20 | sed 's/\r//g' | cut -c1-480 | while IFS= read -r line; do
+              echo "::error::${line//'%'/'%25'}"
+            done || true
 
       - name: Stage APK with the release tag in its name
         env:
