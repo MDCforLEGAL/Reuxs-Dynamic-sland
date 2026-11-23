@@ -4,8 +4,8 @@
     <string name="app_tagline">Material Capsule</string>
 
     <!-- TODO(release): replace OWNER and REPO with your GitHub account and repo. -->
-    <string name="reuxs_repo_owner" translatable="false">OWNER</string>
-    <string name="reuxs_repo_name" translatable="false">REPO</string>
+    <string name="reuxs_repo_owner" translatable="false">https://github.com/MDCforLEGAL/Reuxs-Dynamic-sland/</string>
+    <string name="reuxs_repo_name" translatable="false">https://github.com/MDCforLEGAL</string>
 
     <string name="notification_channel_name">ReuXs kapsülü</string>
     <string name="notification_channel_description">Kapsül arayüzünü açık tutar.</string>
