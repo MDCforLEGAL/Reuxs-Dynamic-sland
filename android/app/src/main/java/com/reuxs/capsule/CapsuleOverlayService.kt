@@ -22,7 +22,6 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.core.app.NotificationCompat
 import androidx.lifecycle.setViewTreeLifecycleOwner
-import androidx.lifecycle.viewmodel.setViewTreeViewModelStoreOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -147,8 +146,9 @@ class CapsuleOverlayService : Service() {
         }
 
         val view = ComposeView(this).apply {
+            // Compose only requires the lifecycle and saved-state owners; no
+            // ViewModel is used by the overlay, so no ViewModelStoreOwner is set.
             setViewTreeLifecycleOwner(lifecycleOwner)
-            setViewTreeViewModelStoreOwner(lifecycleOwner)
             setViewTreeSavedStateRegistryOwner(lifecycleOwner)
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindow)
             setContent {
