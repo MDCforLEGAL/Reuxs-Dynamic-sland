@@ -6,7 +6,7 @@
     <title>ReuXs — Material Capsule for Windows and Android</title>
     <meta
       name="description"
-      content="ReuXs: Windows ve Android için açık kaynak, düşük kaynak tüketimli Material Capsule (Dynamic Island). Canlı müzik modülü, albüm kapağı rengine bürünen kapsül ve bağımsız kontrol paneli."
+      content="ReuXs: Windows ve Android için açık kaynak Material Capsule (Dynamic Island). Canlı müzik modülü, albüm kapağı rengine bürünen kapsül, visualizer ve bağımsız kontrol paneli."
     />
     <meta name="theme-color" content="#050505" />
     <meta property="og:title" content="ReuXs — Material Capsule" />
@@ -14,165 +14,439 @@
       property="og:description"
       content="Crimson & Obsidian temalı kapsül: canlı müzik, dinamik albüm rengi, visualizer ve tam ayar paneli."
     />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='16' fill='%23450a0a'/%3E%3Crect x='7' y='12' width='18' height='8' rx='4' fill='none' stroke='%23ef4444' stroke-width='2'/%3E%3C/svg%3E"
+    />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <div class="glow" aria-hidden="true"></div>
+    <div class="ambient" aria-hidden="true"></div>
+    <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
 
-    <header class="nav">
-      <div class="brand">
+    <header class="nav" id="nav">
+      <a class="brand" href="#top">
         <span class="mark" aria-hidden="true"><span></span></span>
         <span class="brand-text">
           <strong>ReuXs</strong>
           <small>Material Capsule</small>
         </span>
-      </div>
-      <nav class="nav-links">
-        <a href="#features">Özellikler</a>
-        <a href="#music">Müzik</a>
-        <a href="#panel">Kontrol Paneli</a>
-        <a class="cta small" href="https://github.com/MDCforLEGAL/Reuxs-Dynamic-sland/releases/latest">İndir</a>
+      </a>
+
+      <nav class="nav-links" aria-label="Bölümler">
+        <a href="#kapsul">Kapsül</a>
+        <a href="#muzik">Müzik</a>
+        <a href="#panel">Panel</a>
+        <a href="#indir">İndir</a>
       </nav>
+
+      <a class="cta small" id="navDownload" href="#indir">
+        İndir <span id="navVersion">v1.1.0</span>
+      </a>
     </header>
 
-    <main>
+    <main id="top">
+      <!-- ------------------------------------------------------------ hero -->
       <section class="hero">
-        <p class="eyebrow">AÇIK KAYNAK · MIT · WINDOWS + ANDROID</p>
-        <h1>
-          Ekranının tepesinde<br />
-          <span class="crimson">yaşayan kapsül.</span>
-        </h1>
-        <p class="lede">
-          ReuXs; derin siyahtan kan kırmızısına akan bir Material Capsule (Dynamic Island)
-          deneyimi. Windows'ta şeffaf ve her zaman üstte, Android'de ön kamera deliğinin
-          etrafında. Canlı müzik, albüm kapağı rengine bürünen gradyan ve düşük kaynak tüketimi.
-        </p>
+        <div class="hero-copy">
+          <p class="eyebrow">AÇIK KAYNAK · MIT · WINDOWS + ANDROID</p>
+          <h1>
+            Ekranının tepesinde<br />
+            <span class="crimson">yaşayan kapsül.</span>
+          </h1>
+          <p class="lede">
+            Derin siyahtan kan kırmızısına akan bir Material Capsule. Windows'ta şeffaf ve her
+            zaman üstte, Android'de ön kamera deliğinin etrafında. Canlı müzik, albüm kapağı
+            rengine bürünen gradyan, visualizer ve bağımsız kontrol paneli.
+          </p>
 
-        <div class="actions">
-          <a class="cta" href="https://github.com/MDCforLEGAL/Reuxs-Dynamic-sland/releases/latest">
-            Son sürümü indir
-          </a>
-          <a class="ghost" href="https://github.com/MDCforLEGAL/Reuxs-Dynamic-sland">GitHub deposu</a>
+          <div class="actions">
+            <a class="cta" href="#indir">Son sürümü indir</a>
+            <a class="ghost" href="https://github.com/MDCforLEGAL/Reuxs-Dynamic-sland">
+              GitHub deposu
+            </a>
+          </div>
+
+          <dl class="stats" aria-label="Proje bilgileri">
+            <div><dt>Sürüm</dt><dd id="statVersion">v1.1.0</dd></div>
+            <div><dt>Lisans</dt><dd>MIT</dd></div>
+            <div><dt>Anahtar</dt><dd>Gerekmez</dd></div>
+            <div><dt>Boyut</dt><dd id="statSize">~9 MB</dd></div>
+          </dl>
         </div>
 
-        <div class="hero-capsule" aria-hidden="true">
-          <div class="capsule">
-            <span class="dot"></span>
+        <div class="hero-stage" aria-hidden="true">
+          <div class="capsule" id="heroCapsule">
+            <span class="art" id="heroArt"></span>
             <div class="capsule-text">
-              <strong>ReuXs</strong>
-              <small>Material Capsule</small>
+              <strong id="heroTitle">ReuXs</strong>
+              <small id="heroArtist">Material Capsule</small>
             </div>
-            <div class="bars">
+            <div class="bars" data-viz>
               <i></i><i></i><i></i><i></i><i></i>
             </div>
-            <span class="time">05:00</span>
+            <span class="pill-time">05:00</span>
           </div>
-          <p class="hint">Albüm kapağı çalınca kapsül o rengi alır.</p>
+          <div class="hero-under">
+            <span class="dot-live"></span>
+            <span id="heroUnder">Sistem medya oturumu dinleniyor</span>
+          </div>
         </div>
       </section>
 
-      <section id="features" class="grid">
-        <article class="card">
-          <h3>Kapsül sadece gösterir</h3>
-          <p>
-            Kapsülde ayar menüsü yok. Durum, zamanlayıcı ve hızlı kontroller; geri kalan her
-            şey ayrı kontrol panelinde.
+      <div class="strip" aria-hidden="true">
+        <span>WINDOWS SMTC</span><b>·</b><span>ANDROID MEDIASESSION</span><b>·</b>
+        <span>ADAPTIVE PALETTE</span><b>·</b><span>VISUALIZER</span><b>·</b>
+        <span>CONTROL PANEL</span><b>·</b><span>MIT</span>
+      </div>
+
+      <!-- ------------------------------------------------------ interactive -->
+      <section id="kapsul" class="section reveal">
+        <div class="section-head">
+          <p class="kicker">ETKİLEŞİMLİ GÖSTERİM</p>
+          <h2>Kapsülü burada dene</h2>
+          <p class="sub">
+            Aşağıdaki kontroller gerçek panelin değerlerini taklit eder — kaydırınca yukarıdaki
+            kapsül de anında değişir. Uygulamada aynı ayarlar kalıcı olarak saklanır.
           </p>
-        </article>
-        <article class="card">
-          <h3>Sıfır secret, sıfır hesap</h3>
-          <p>
-            Müzik bilgisi doğrudan işletim sisteminin medya oturumundan okunur: Windows'ta SMTC,
-            Android'de MediaSessionManager. API anahtarı yok.
-          </p>
-        </article>
-        <article class="card">
-          <h3>Otomatik güncelleme</h3>
-          <p>
-            Uygulama açılışta GitHub Releases'i denetler, yeni sürüm varsa sorar ve doğrudan
-            kurulum dosyasını indirir.
-          </p>
-        </article>
+        </div>
+
+        <div class="lab" id="lab">
+          <div class="lab-stage">
+            <div class="capsule capsule-lg" id="demoCapsule" tabindex="0" role="button"
+                 aria-label="Kapsülü genişlet veya daralt">
+              <span class="art" id="demoArt"></span>
+              <div class="capsule-text">
+                <strong id="demoTitle">ReuXs</strong>
+                <small id="demoArtist">material capsule</small>
+              </div>
+              <div class="bars" data-viz>
+                <i></i><i></i><i></i><i></i><i></i>
+              </div>
+              <span class="pill-time" id="demoTime">05:00</span>
+            </div>
+
+            <div class="expand-panel" id="expandPanel" hidden>
+              <div class="expand-row">
+                <span class="scene-pill"><i></i>ReuXs AKTİF</span>
+                <span class="mini-pill">%87 pil</span>
+                <span class="mini-pill">sürüm güncel</span>
+              </div>
+              <div class="music-mini">
+                <span class="art small" id="expandArt"></span>
+                <div class="music-mini-text">
+                  <strong id="expandTitle">Midnight Drive</strong>
+                  <small id="expandArtist">Synthwave Collective</small>
+                </div>
+                <div class="bars" data-viz>
+                  <i></i><i></i><i></i><i></i>
+                </div>
+                <button type="button" class="round-btn" id="expandPlay" aria-label="Oynat/Duraklat">
+                  ❚❚
+                </button>
+              </div>
+              <div class="seek"><span id="seekFill" style="width: 38%"></span></div>
+              <div class="seek-meta"><span id="seekNow">1:24</span><span id="seekEnd">3:48</span></div>
+              <div class="expand-actions">
+                <span>Böl</span><span>Odak 25</span><span>Güncelleme</span>
+              </div>
+            </div>
+
+            <p class="hint" id="labHint">Kapsüle tıkla: genişlet / daralt</p>
+          </div>
+
+          <div class="lab-controls">
+            <div class="control-block">
+              <div class="control-head"><span>Tema</span><span class="mono" id="themeValue">Koyu Kırmızı</span></div>
+              <div class="chips" id="themeChips" role="group" aria-label="Tema">
+                <button type="button" class="chip" data-theme="crimson" aria-pressed="true">Koyu Kırmızı</button>
+                <button type="button" class="chip" data-theme="oled" aria-pressed="false">Saf OLED</button>
+                <button type="button" class="chip" data-theme="album" aria-pressed="false">Albüm</button>
+                <button type="button" class="chip" data-theme="custom" aria-pressed="false">Özel</button>
+              </div>
+              <label class="color-row" id="colorRow" hidden>
+                <input type="color" id="accentPicker" value="#ef4444" aria-label="Özel vurgu rengi" />
+                <span class="mono" id="accentValue">#EF4444</span>
+              </label>
+            </div>
+
+            <label class="range-row">
+              <span>Opaklık</span><input type="range" id="opacityRange" min="35" max="100" value="92" />
+              <output class="mono" id="opacityValue">%92</output>
+            </label>
+            <label class="range-row">
+              <span>Köşe yuvarlaklığı</span><input type="range" id="radiusRange" min="8" max="34" value="26" />
+              <output class="mono" id="radiusValue">26 px</output>
+            </label>
+            <label class="range-row">
+              <span>Ölçek</span><input type="range" id="scaleRange" min="75" max="135" value="100" />
+              <output class="mono" id="scaleValue">%100</output>
+            </label>
+            <label class="range-row">
+              <span>Parlama</span><input type="range" id="glowRange" min="0" max="100" value="55" />
+              <output class="mono" id="glowValue">%55</output>
+            </label>
+
+            <div class="control-block">
+              <div class="control-head"><span>Çalan parça</span><span class="mono" id="trackIndex">1 / 3</span></div>
+              <div class="track-row" id="trackRow" role="group" aria-label="Demo parça"></div>
+            </div>
+          </div>
+        </div>
       </section>
 
-      <section id="music" class="split">
-        <div>
-          <h2>Canlı müzik modülü</h2>
-          <p>
-            Şarkı adı, sanatçı, kapak ve oynatma durumu gerçek zamanlı gelir. Oynat/duraklat
-            doğrudan sistem oynatıcısına iletilir.
+      <!-- -------------------------------------------------------- features -->
+      <section class="section reveal">
+        <div class="section-head">
+          <p class="kicker">NEDEN</p>
+          <h2>Kapsül gösterir, panel ayarlar</h2>
+        </div>
+        <div class="grid">
+          <article class="card">
+            <span class="card-icon">◧</span>
+            <h3>Kapsülde menü yok</h3>
+            <p>
+              Durum, zamanlayıcı ve hızlı kontroller. Tüm özelleştirme ayrı kontrol panelinde —
+              kapsül ekranın üstünde ince kalır.
+            </p>
+          </article>
+          <article class="card">
+            <span class="card-icon">♪</span>
+            <h3>Sıfır secret, sıfır hesap</h3>
+            <p>
+              Müzik bilgisi işletim sisteminin medya oturumundan okunur: Windows SMTC, Android
+              MediaSessionManager. API anahtarı, giriş, bulut yok.
+            </p>
+          </article>
+          <article class="card">
+            <span class="card-icon">◐</span>
+            <h3>Kapağa bürünme</h3>
+            <p>
+              Kapak yerel olarak örneklenir; baskın ve en doygun renk çıkarılır. Gradyan, kenarlık
+              ve parlama yumuşak geçişle o renklere kayar.
+            </p>
+          </article>
+          <article class="card">
+            <span class="card-icon">⟳</span>
+            <h3>Otomatik güncelleme</h3>
+            <p>
+              Açılışta GitHub Releases denetlenir; yeni sürüm varsa sorulur ve doğrudan kurulum
+              dosyası indirilir.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <!-- ----------------------------------------------------------- music -->
+      <section id="muzik" class="section split reveal">
+        <div class="split-copy">
+          <p class="kicker">CANLI MÜZİK</p>
+          <h2>Şarkı değişince kapsül de değişir</h2>
+          <p class="sub">
+            Spotify, YouTube Music, VLC ya da Windows Medya Oynatıcı — hangisi çalıyorsa kapsül
+            onu gösterir. Oynat/duraklat doğrudan gerçek oynatıcıya iletilir.
           </p>
           <ul class="ticks">
-            <li>Albüm kapağından baskın + vurgu rengi çıkarımı</li>
-            <li>Yumuşak geçişli gradyan ve kenarlık parlaması</li>
+            <li>Şarkı adı, sanatçı, albüm ve süre</li>
+            <li>Kapaktan çıkarılan baskın + vurgu rengi</li>
             <li>Çubuk veya dalga visualizer — açılıp kapatılabilir</li>
-            <li>Kapak paleti kapatıldığında varsayılan Koyu Kırmızı &amp; Siyah</li>
+            <li>Palet kapalıysa varsayılan Koyu Kırmızı &amp; Siyah</li>
           </ul>
-        </div>
-        <div class="panel-preview" aria-hidden="true">
-          <div class="mini-row">
-            <span class="cover"></span>
-            <span class="mini-text">
-              <strong>Midnight Drive</strong>
-              <small>Synthwave Collective</small>
-            </span>
-            <span class="bars small"><i></i><i></i><i></i><i></i></span>
+          <div class="palette-row">
+            <span class="palette-label">Şu anki palet</span>
+            <span class="swatch" id="paletteDominant"></span>
+            <span class="swatch" id="paletteAccent"></span>
+            <span class="mono" id="paletteHex">#7F1D1D / #EF4444</span>
           </div>
-          <div class="progress"><span></span></div>
-          <p class="mini-meta">1:24 / 3:48</p>
+        </div>
+
+        <div class="split-demo">
+          <div class="player" id="player">
+            <div class="player-cover" id="playerCover"></div>
+            <div class="player-body">
+              <strong id="playerTitle">Midnight Drive</strong>
+              <span id="playerArtist">Synthwave Collective · 2026</span>
+              <div class="seek"><span id="playerSeek" style="width: 38%"></span></div>
+              <div class="seek-meta"><span id="playerNow">1:24</span><span id="playerEnd">3:48</span></div>
+              <div class="player-controls">
+                <button type="button" class="round-btn ghost" id="prevTrack" aria-label="Önceki">⏮</button>
+                <button type="button" class="round-btn big" id="playTrack" aria-label="Oynat">▶</button>
+                <button type="button" class="round-btn ghost" id="nextTrack" aria-label="Sonraki">⏭</button>
+              </div>
+            </div>
+          </div>
+          <p class="hint">Parçayı değiştir: kapsülün rengi de değişir</p>
         </div>
       </section>
 
-      <section id="panel" class="split reverse">
-        <div class="panel-preview tall" aria-hidden="true">
-          <div class="pill-row"><span>Konum &amp; Boyut</span><i class="chip"></i></div>
-          <div class="pill-row"><span>Görünüm &amp; Renk</span><i class="chip"></i></div>
-          <div class="pill-row"><span>Müzik &amp; Visualizer</span><i class="chip"></i></div>
-          <div class="pill-row"><span>Genel &amp; Güncelleme</span><i class="chip"></i></div>
-          <div class="slider"><span style="width: 62%"></span></div>
-          <div class="swatches"><i class="s1"></i><i class="s2"></i><i class="s3"></i><i class="s4"></i></div>
+      <!-- ----------------------------------------------------------- panel -->
+      <section id="panel" class="section split reverse reveal">
+        <div class="split-demo">
+          <div class="window">
+            <div class="window-bar">
+              <span class="window-dots"><i></i><i></i><i></i></span>
+              <span class="window-title">ReuXs Kontrol Paneli</span>
+            </div>
+            <div class="window-body">
+              <aside class="window-nav" id="panelTabs" role="tablist" aria-label="Panel bölümleri">
+                <button type="button" class="tab active" data-tab="layout" role="tab" aria-selected="true">
+                  Konum &amp; Boyut
+                </button>
+                <button type="button" class="tab" data-tab="look" role="tab" aria-selected="false">
+                  Görünüm &amp; Renk
+                </button>
+                <button type="button" class="tab" data-tab="music" role="tab" aria-selected="false">
+                  Müzik &amp; Visualizer
+                </button>
+                <button type="button" class="tab" data-tab="general" role="tab" aria-selected="false">
+                  Genel &amp; Güncelleme
+                </button>
+              </aside>
+
+              <div class="window-content">
+                <div class="pane active" data-pane="layout">
+                  <h4>Konum ve Boyut</h4>
+                  <div class="mock-range"><span>Yatay (X)</span><b>0 px</b></div>
+                  <div class="mock-track"><i style="width: 50%"></i></div>
+                  <div class="mock-range"><span>Dikey (Y)</span><b>16 px</b></div>
+                  <div class="mock-track"><i style="width: 18%"></i></div>
+                  <div class="mock-range"><span>Ölçek</span><b>%100</b></div>
+                  <div class="mock-track"><i style="width: 62%"></i></div>
+                  <span class="mock-btn">Varsayılan Konuma Sıfırla</span>
+                </div>
+
+                <div class="pane" data-pane="look">
+                  <h4>Görünüm ve Renk</h4>
+                  <div class="mock-range"><span>Opaklık</span><b>%92</b></div>
+                  <div class="mock-track"><i style="width: 78%"></i></div>
+                  <div class="mock-range"><span>Köşe yuvarlaklığı</span><b>26 px</b></div>
+                  <div class="mock-track"><i style="width: 64%"></i></div>
+                  <div class="mock-chips">
+                    <span class="chip active">Koyu Kırmızı</span>
+                    <span class="chip">Saf OLED</span>
+                    <span class="chip">Özel</span>
+                    <span class="chip">Albüm</span>
+                  </div>
+                </div>
+
+                <div class="pane" data-pane="music">
+                  <h4>Müzik ve Visualizer</h4>
+                  <div class="mock-toggle"><span>Müzik modülü</span><i class="on"></i></div>
+                  <div class="mock-toggle"><span>Albüm kapağı rengine bürün</span><i class="on"></i></div>
+                  <div class="mock-toggle"><span>Visualizer'ı göster</span><i class="on"></i></div>
+                  <div class="mock-chips"><span class="chip active">Çubuklar</span><span class="chip">Dalga</span></div>
+                </div>
+
+                <div class="pane" data-pane="general">
+                  <h4>Genel ve Güncelleme</h4>
+                  <div class="mock-toggle"><span>Başlangıçta otomatik çalıştır</span><i></i></div>
+                  <div class="mock-toggle"><span>Kapsülü geçici olarak gizle</span><i></i></div>
+                  <div class="mock-range"><span>Sürüm</span><b id="paneVersion">v1.1.0</b></div>
+                  <span class="mock-btn">Güncellemeleri Kontrol Et</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div>
+
+        <div class="split-copy">
+          <p class="kicker">AYAR MERKEZİ</p>
           <h2>ReuXs Kontrol Paneli</h2>
-          <p>
-            Uygulamayı açtığında karşına tam ekran bir ayar merkezi çıkar. Her kaydırma anında
-            kapsüle yansır ve cihazda saklanır.
+          <p class="sub">
+            Uygulamayı açtığında tam ekran bir ayar merkezi gelir. Windows'ta ayrı bir pencere,
+            Android'de ana ekran. Her kaydırma anında kapsüle yansır ve cihazda saklanır.
           </p>
           <ul class="ticks">
-            <li>X / Y konumu, ölçek ve tek tıkla varsayılana sıfırlama</li>
-            <li>Opaklık, blur, köşe yuvarlaklığı ve parlama şiddeti</li>
-            <li>Dört tema modu: Koyu Kırmızı, Saf OLED, Özel renk, Albüm kapağı</li>
+            <li>Piksel hassasiyetinde X / Y, ölçek, tek tıkla sıfırlama</li>
+            <li>Opaklık, blur, köşe yuvarlaklığı, parlama şiddeti</li>
+            <li>Dört tema: Koyu Kırmızı, Saf OLED, Özel renk, Albüm</li>
             <li>Müzik modülü, palet ve visualizer anahtarları</li>
-            <li>Otomatik başlatma, geçici gizleme, güncelleme denetimi</li>
+            <li>Otomatik başlatma, geçici gizleme, sürüm denetimi</li>
           </ul>
         </div>
       </section>
 
-      <section class="install">
-        <h2>Kurulum</h2>
+      <!-- ------------------------------------------------------- downloads -->
+      <section id="indir" class="section reveal">
+        <div class="section-head">
+          <p class="kicker">SÜRÜMLER</p>
+          <h2>İndir</h2>
+          <p class="sub">
+            Kurulum dosyaları GitHub Releases'ten doğrudan gelir. Windows paketi imzasız, Android
+            APK'sı debug anahtarıyla imzalıdır ve doğrudan kurulabilir.
+          </p>
+        </div>
+
+        <div class="latest" id="latestCard" hidden>
+          <div class="latest-main">
+            <span class="badge-live">EN SON</span>
+            <h3 id="latestTag">v1.1.0</h3>
+            <p id="latestDate">—</p>
+          </div>
+          <div class="latest-assets" id="latestAssets"></div>
+        </div>
+
+        <h3 class="list-title" id="previousTitle" hidden>Önceki sürümler</h3>
+        <div class="releases" id="releaseList" aria-live="polite">
+          <div class="release skeleton" aria-hidden="true">
+            <div class="sk-line"></div>
+            <div class="sk-line short"></div>
+            <div class="sk-line"></div>
+          </div>
+          <div class="release skeleton" aria-hidden="true">
+            <div class="sk-line"></div>
+            <div class="sk-line short"></div>
+          </div>
+        </div>
+
+        <p class="download-note" id="downloadNote">
+          Sürüm listesi yükleniyor…
+        </p>
+
         <div class="install-grid">
-          <div class="card">
+          <article class="card">
             <h3>Windows</h3>
-            <p>Tauri v2 · Rust + React. <code>.msi</code> veya <code>.exe</code> kurulumunu indir.</p>
-          </div>
-          <div class="card">
+            <ol class="steps">
+              <li><code>.exe</code> veya <code>.msi</code> dosyasını indir.</li>
+              <li>Kurulumu çalıştır (imzasız olduğu için SmartScreen uyarısı çıkabilir).</li>
+              <li>Kapsül açılır; dişli simgesi kontrol panelini açar.</li>
+            </ol>
+          </article>
+          <article class="card">
             <h3>Android</h3>
-            <p>Kotlin + Jetpack Compose. <code>.apk</code> dosyasını indirip yükle, kapsül iznini ver.</p>
-          </div>
-          <div class="card">
+            <ol class="steps">
+              <li><code>.apk</code> dosyasını indir.</li>
+              <li>Bilinmeyen kaynaklara izin verip yükle.</li>
+              <li>Ekran üstü + bildirim erişimi izinlerini ver, kapsülü başlat.</li>
+            </ol>
+          </article>
+          <article class="card">
             <h3>Kaynak</h3>
-            <p>MIT lisanslı monorepo: <code>core/</code>, <code>windows/</code>, <code>android/</code>.</p>
-          </div>
+            <ol class="steps">
+              <li><code>core/</code> ortak durum makinesi ve ayarlar.</li>
+              <li><code>windows/</code> Tauri v2 + React kapsül.</li>
+              <li><code>android/</code> Compose kontrol paneli + overlay.</li>
+            </ol>
+            <a class="inline-link" href="https://github.com/MDCforLEGAL/Reuxs-Dynamic-sland">
+              Depoyu aç ↗
+            </a>
+          </article>
         </div>
       </section>
     </main>
 
     <footer>
-      <span>© 2026 ReuXs Contributors · MIT</span>
+      <div class="foot-brand">
+        <span class="mark small" aria-hidden="true"><span></span></span>
+        <span>© 2026 ReuXs Contributors · MIT</span>
+      </div>
       <span class="links">
         <a href="https://github.com/MDCforLEGAL/Reuxs-Dynamic-sland">GitHub</a>
         <a href="https://github.com/MDCforLEGAL/Reuxs-Dynamic-sland/releases">Sürümler</a>
+        <a href="https://github.com/MDCforLEGAL/Reuxs-Dynamic-sland/blob/main/docs/SETUP.md">Kurulum</a>
       </span>
     </footer>
+
+    <script src="./app.js" defer></script>
   </body>
 </html>
