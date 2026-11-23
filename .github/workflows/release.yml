@@ -138,7 +138,7 @@ jobs:
         shell: bash
         run: |
           grep -E "^(e: |w: .*: error)|error:|What went wrong|FAILURE: |Caused by:|> Task .* FAILED" gradle-build.log \
-            | head -n 20 | sed 's/\r//g' | cut -c1-480 | while IFS= read -r line; do
+            | head -n 40 | sed 's/\r//g' | cut -c1-480 | while IFS= read -r line; do
               echo "::error::${line//'%'/'%25'}"
             done || true
 

@@ -122,7 +122,7 @@ private fun CompactPill(
             .padding(horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        CapsuleGlyph(22)
+        CapsuleGlyph(22.dp)
         Spacer(Modifier.width(8.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
@@ -193,7 +193,7 @@ private fun ExpandedCard(
             .padding(14.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            CapsuleGlyph(26)
+            CapsuleGlyph(26.dp)
             Spacer(Modifier.width(8.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -395,7 +395,7 @@ private fun SplitRow(
                 .padding(horizontal = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            CapsuleGlyph(24)
+            CapsuleGlyph(24.dp)
             Spacer(Modifier.width(8.dp))
             Column {
                 Text(
