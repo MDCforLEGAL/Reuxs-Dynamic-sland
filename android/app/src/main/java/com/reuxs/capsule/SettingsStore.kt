@@ -14,6 +14,13 @@ enum class VisualizerStyle { BARS, WAVE }
 
 data class AlbumPalette(val dominant: Color, val accent: Color)
 
+/** Which modules the capsule shows when it is tapped open. */
+data class CapsulePanels(
+    val music: Boolean = true,
+    val timer: Boolean = true,
+    val actions: Boolean = true
+)
+
 /**
  * Every customisation the control panel owns. The overlay reads the same
  * instance, so a change is visible on the capsule immediately.
@@ -33,7 +40,9 @@ data class ReuxsSettings(
     val visualizer: Boolean = true,
     val visualizerStyle: VisualizerStyle = VisualizerStyle.BARS,
     val autostart: Boolean = false,
-    val capsuleHidden: Boolean = false
+    val capsuleHidden: Boolean = false,
+    val capsulePanels: CapsulePanels = CapsulePanels(),
+    val startOnPermission: Boolean = true
 ) {
     /** Guards against values that would push the capsule off screen. */
     fun normalized(): ReuxsSettings = copy(
@@ -104,7 +113,13 @@ object SettingsStore {
                 )
             }.getOrDefault(defaults.visualizerStyle),
             autostart = store.getBoolean("autostart", defaults.autostart),
-            capsuleHidden = store.getBoolean("capsuleHidden", defaults.capsuleHidden)
+            capsuleHidden = store.getBoolean("capsuleHidden", defaults.capsuleHidden),
+            capsulePanels = CapsulePanels(
+                music = store.getBoolean("panelMusic", defaults.capsulePanels.music),
+                timer = store.getBoolean("panelTimer", defaults.capsulePanels.timer),
+                actions = store.getBoolean("panelActions", defaults.capsulePanels.actions)
+            ),
+            startOnPermission = store.getBoolean("startOnPermission", defaults.startOnPermission)
         ).normalized()
     }
 
@@ -125,6 +140,10 @@ object SettingsStore {
             ?.putString("visualizerStyle", settings.visualizerStyle.name)
             ?.putBoolean("autostart", settings.autostart)
             ?.putBoolean("capsuleHidden", settings.capsuleHidden)
+            ?.putBoolean("panelMusic", settings.capsulePanels.music)
+            ?.putBoolean("panelTimer", settings.capsulePanels.timer)
+            ?.putBoolean("panelActions", settings.capsulePanels.actions)
+            ?.putBoolean("startOnPermission", settings.startOnPermission)
             ?.apply()
     }
 }

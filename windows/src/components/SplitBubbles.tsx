@@ -1,12 +1,10 @@
 import { motion } from "framer-motion";
-import { CAPSULE_LAYOUT, CAPSULE_SPRING, formatClock, formatDuration, theme } from "@core";
-import type { BatteryState } from "../hooks/useBattery";
+import { CAPSULE_LAYOUT, CAPSULE_SPRING, formatDuration, theme, type NowPlaying } from "@core";
 import type { TimerApi } from "../hooks/useTimer";
-import { BatteryIcon, CapsuleGlyph, ChevronDownIcon, PauseIcon, PlayIcon, ResetIcon } from "./icons";
+import { CapsuleGlyph, ChevronDownIcon, MusicIcon, PauseIcon, PlayIcon, ResetIcon } from "./icons";
 
 interface SplitBubblesProps {
-  clock: Date;
-  battery: BatteryState;
+  track: NowPlaying | null;
   timer: TimerApi;
   onMerge: () => void;
 }
@@ -17,7 +15,8 @@ const bubbleStyle = {
   boxShadow: theme.shadows.compact
 } as const;
 
-export function SplitBubbles({ clock, battery, timer, onMerge }: SplitBubblesProps) {
+/** Split mode: the track in one bubble, the timer in the other. */
+export function SplitBubbles({ track, timer, onMerge }: SplitBubblesProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: -10, scale: 0.96 }}
@@ -31,21 +30,32 @@ export function SplitBubbles({ clock, battery, timer, onMerge }: SplitBubblesPro
         style={{ ...bubbleStyle, width: CAPSULE_LAYOUT.splitBubbleWidth }}
         className="flex h-[62px] items-center gap-2 rounded-[22px] border px-3"
       >
-        <span className="grid h-7 w-7 place-items-center rounded-full bg-crimson-950/90 ring-1 ring-crimson-500/40">
-          <CapsuleGlyph className="h-4 w-4 text-crimson-400" />
-        </span>
-        <div className="flex min-w-0 flex-col leading-none">
-          <span className="font-mono text-[13px] tabular-nums text-ink-50">{formatClock(clock)}</span>
-          <span className="mt-1 flex items-center gap-1 text-[9px] uppercase tracking-[0.14em] text-ink-500">
-            <BatteryIcon className="h-2.5 w-2.5 text-crimson-400/80" />
-            {battery.level === null ? "AC" : `${battery.level}%`}
+        {track?.art ? (
+          <img src={track.art} alt="" className="h-7 w-7 shrink-0 rounded-full object-cover" />
+        ) : (
+          <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-crimson-950/90 ring-1 ring-crimson-500/40">
+            {track ? (
+              <MusicIcon className="h-3.5 w-3.5 text-crimson-400" />
+            ) : (
+              <CapsuleGlyph className="h-4 w-4 text-crimson-400" />
+            )}
           </span>
+        )}
+        <div className="flex min-w-0 flex-col leading-none">
+          <span className="truncate text-[12px] font-semibold text-ink-50">
+            {track ? track.title : "ReuXs"}
+          </span>
+          {track ? (
+            <span className="mt-1 truncate text-[9px] uppercase tracking-[0.14em] text-ink-500">
+              {track.artist || "Bilinmeyen sanatçı"}
+            </span>
+          ) : null}
         </div>
         <button
           type="button"
           onClick={onMerge}
           aria-label="Baloncukları birleştir"
-          className="ml-auto grid h-6 w-6 place-items-center rounded-full text-ink-500 transition-colors hover:bg-white/5 hover:text-white"
+          className="ml-auto grid h-6 w-6 shrink-0 place-items-center rounded-full text-ink-500 transition-colors hover:bg-white/5 hover:text-white"
         >
           <ChevronDownIcon className="h-3 w-3 rotate-90" />
         </button>

@@ -25,7 +25,7 @@ import { useCapsule } from "./hooks/useCapsule";
 import { useNowPlaying } from "./hooks/useNowPlaying";
 import { useSettings } from "./hooks/useSettings";
 import { useUpdate } from "./hooks/useUpdate";
-import { invokeSafe, openExternal, setAutostart } from "./lib/os";
+import { createShortcut, invokeSafe, openExternal, setAutostart } from "./lib/os";
 
 const SECTIONS = [
   { id: "layout", label: "Konum & Boyut", hint: "Kapsülü piksel piksel yerleştir" },
@@ -46,15 +46,17 @@ const THEME_OPTIONS: { value: ThemeMode; label: string; hint: string }[] = [
 export function SettingsApp() {
   const { settings, update, reset } = useSettings();
   const [section, setSection] = useState<SectionId>("layout");
+  const [shortcut, setShortcut] = useState<"idle" | "done" | "failed">("idle");
   const updateApi = useUpdate();
   const nowPlaying = useNowPlaying(settings.musicEnabled);
   const track = hasTrack(nowPlaying.track) ? nowPlaying.track : null;
   const palette = useAlbumPalette(track?.art ?? null, settings.musicEnabled);
   const appearance = capsuleAppearance(settings, settings.adaptivePalette ? palette : null);
 
-  // Persist the autostart choice whenever it changes (never silently).
+  // Mirror the autostart choice into the registry both ways, so turning the
+  // switch off actually removes the Run entry.
   useEffect(() => {
-    if (settings.autostart) void setAutostart(true);
+    void setAutostart(settings.autostart);
   }, [settings.autostart]);
 
   const resetPosition = () => {
@@ -364,6 +366,36 @@ export function SettingsApp() {
 
           {section === "general" ? (
             <>
+              <Panel
+                title="Kapsülde görünenler"
+                description="Kapsül sade kalır: dokununca yalnızca burada açtığın kartlar gelir."
+              >
+                <ToggleRow
+                  label="Müzik kartı"
+                  description="Kapak, şarkı adı, ilerleme ve oynat/duraklat."
+                  checked={settings.capsulePanels.music}
+                  onChange={(music) =>
+                    update({ capsulePanels: { ...settings.capsulePanels, music } })
+                  }
+                />
+                <ToggleRow
+                  label="Zamanlayıcı kartı"
+                  description="Geri sayım, hazır süreler ve sıfırlama."
+                  checked={settings.capsulePanels.timer}
+                  onChange={(timer) =>
+                    update({ capsulePanels: { ...settings.capsulePanels, timer } })
+                  }
+                />
+                <ToggleRow
+                  label="Hızlı eylemler"
+                  description="Böl, Odak 25 ve Panel düğmeleri."
+                  checked={settings.capsulePanels.actions}
+                  onChange={(actions) =>
+                    update({ capsulePanels: { ...settings.capsulePanels, actions } })
+                  }
+                />
+              </Panel>
+
               <Panel title="Genel" description="Başlangıç davranışı ve kapsül görünürlüğü.">
                 <ToggleRow
                   label="Başlangıçta otomatik çalıştır"
@@ -377,6 +409,25 @@ export function SettingsApp() {
                   checked={settings.capsuleHidden}
                   onChange={(capsuleHidden) => update({ capsuleHidden })}
                 />
+                <div className="flex flex-wrap items-center gap-2 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      void createShortcut().then((path) => setShortcut(path ? "done" : "failed"));
+                    }}
+                    className="rounded-full border border-white/10 px-3.5 py-2 text-[11.5px] text-ink-300 transition-colors hover:border-crimson-500/40 hover:text-white"
+                  >
+                    Masaüstü kısayolu oluştur
+                  </button>
+                  {shortcut === "done" ? (
+                    <span className="text-[10.5px] text-ink-500">
+                      Kısayol masaüstüne ve Başlat menüsüne eklendi.
+                    </span>
+                  ) : null}
+                  {shortcut === "failed" ? (
+                    <span className="text-[10.5px] text-ink-500">Kısayol oluşturulamadı.</span>
+                  ) : null}
+                </div>
                 <div className="flex items-center gap-2 pt-1">
                   <BatteryIcon className="h-3.5 w-3.5 text-ink-500" />
                   <span className="text-[11px] text-ink-500">

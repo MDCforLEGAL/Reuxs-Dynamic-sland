@@ -6,24 +6,18 @@ import { CompactCapsule } from "./components/CompactCapsule";
 import { ExpandedCapsule } from "./components/ExpandedCapsule";
 import { SplitBubbles } from "./components/SplitBubbles";
 import { useAlbumPalette } from "./hooks/useAlbumPalette";
-import { useBattery } from "./hooks/useBattery";
 import { useCapsule } from "./hooks/useCapsule";
-import { useClock } from "./hooks/useClock";
 import { useNowPlaying } from "./hooks/useNowPlaying";
 import { useSettings } from "./hooks/useSettings";
 import { useTimer } from "./hooks/useTimer";
-import { useUpdate } from "./hooks/useUpdate";
 import { invokeSafe, isTauri, openSettings } from "./lib/os";
 
-const COMPACT_WIDTH = 268;
-const COMPACT_WIDTH_MUSIC = 300;
+const COMPACT_WIDTH = 190;
+const COMPACT_WIDTH_MUSIC = 280;
 
 export function CapsuleApp() {
   const { state, dispatch } = useCapsule("compact");
-  const clock = useClock();
-  const battery = useBattery();
   const timer = useTimer(60_000);
-  const update = useUpdate();
   const { settings } = useSettings();
 
   const nowPlaying = useNowPlaying(settings.musicEnabled);
@@ -81,8 +75,7 @@ export function CapsuleApp() {
           {state === "split-bubble" ? (
             <SplitBubbles
               key="split"
-              clock={clock}
-              battery={battery}
+              track={track}
               timer={timer}
               onMerge={() => dispatch({ type: "merge" })}
             />
@@ -96,15 +89,13 @@ export function CapsuleApp() {
             >
               {isExpanded ? (
                 <ExpandedCapsule
-                  clock={clock}
-                  battery={battery}
                   timer={timer}
-                  update={update}
                   track={track}
                   palette={palette}
                   accent={appearance.accent}
                   visualizer={settings.visualizer}
                   visualizerStyle={settings.visualizerStyle}
+                  panels={settings.capsulePanels}
                   onControl={nowPlaying.control}
                   onCollapse={() => dispatch({ type: "collapse" })}
                   onSplit={() => dispatch({ type: "split" })}
@@ -115,8 +106,6 @@ export function CapsuleApp() {
                 <CompactCapsule
                   remainingMs={timer.remainingMs}
                   running={timer.running}
-                  battery={battery}
-                  update={update.status}
                   track={track}
                   accent={appearance.accent}
                   visualizer={settings.visualizer}

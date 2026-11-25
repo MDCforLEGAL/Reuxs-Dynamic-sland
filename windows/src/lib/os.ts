@@ -40,3 +40,8 @@ export async function setCapsuleVisible(visible: boolean): Promise<void> {
 export async function setAutostart(enabled: boolean): Promise<void> {
   await invokeSafe("set_autostart", { enabled });
 }
+
+/** Puts a ReuXs shortcut on the desktop and in the Start menu. */
+export async function createShortcut(): Promise<string | null> {
+  return invokeSafe<string>("create_shortcut");
+}

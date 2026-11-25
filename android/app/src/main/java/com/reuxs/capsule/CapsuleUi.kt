@@ -61,7 +61,7 @@ fun CapsuleOverlay(
     onResetTimer: () -> Unit,
     onSetDuration: (Long) -> Unit,
     onSplit: () -> Unit,
-    onOpenUpdate: () -> Unit,
+    onOpenPanel: () -> Unit,
     onTogglePlay: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -98,6 +98,7 @@ fun CapsuleOverlay(
                     snapshot = snapshot,
                     settings = settings,
                     appearance = appearance,
+                    track = track,
                     onMerge = { onEvent(CapsuleEvent.Merge) },
                     onToggleTimer = onToggleTimer
                 )
@@ -112,7 +113,7 @@ fun CapsuleOverlay(
                     onResetTimer = onResetTimer,
                     onSetDuration = onSetDuration,
                     onSplit = onSplit,
-                    onOpenUpdate = onOpenUpdate,
+                    onOpenPanel = onOpenPanel,
                     onTogglePlay = onTogglePlay
                 )
 
@@ -144,14 +145,14 @@ private fun CompactPill(
 ) {
     Row(
         modifier = Modifier
-            .width(if (track != null) 300.dp else 268.dp)
+            .width(if (track != null) 280.dp else 190.dp)
             .height(44.dp)
             .capsuleSurface(expanded = false, appearance = appearance, settings = settings)
             .clickable { onExpand() }
             .padding(horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        AlbumThumb(track, appearance, size = 22.dp)
+        AlbumThumb(track, appearance, size = 24.dp)
 
         Spacer(Modifier.width(8.dp))
 
@@ -163,14 +164,15 @@ private fun CompactPill(
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1
             )
-            Text(
-                text = (track?.artist?.takeIf { it.isNotBlank() } ?: "MATERIAL CAPSULE")
-                    .uppercase(),
-                color = ReuXsColors.TextMuted,
-                fontSize = 7.sp,
-                letterSpacing = 1.2.sp,
-                maxLines = 1
-            )
+            if (track != null) {
+                Text(
+                    text = track.artist.ifBlank { "Bilinmeyen sanatçı" }.uppercase(),
+                    color = ReuXsColors.TextMuted,
+                    fontSize = 7.sp,
+                    letterSpacing = 1.2.sp,
+                    maxLines = 1
+                )
+            }
         }
 
         if (track != null && settings.visualizer) {
@@ -204,25 +206,6 @@ private fun CompactPill(
                 .padding(horizontal = 5.dp, vertical = 3.dp)
         )
 
-        if (track == null) {
-            Spacer(Modifier.width(3.dp))
-            Text(
-                text = batteryLabel(snapshot),
-                color = ReuXsColors.TextSecondary,
-                fontSize = 10.sp
-            )
-        }
-
-        if (snapshot.updateAvailable) {
-            Spacer(Modifier.width(4.dp))
-            Box(
-                modifier = Modifier
-                    .size(5.dp)
-                    .clip(CircleShape)
-                    .background(appearance.accent)
-            )
-        }
-
         Spacer(Modifier.width(2.dp))
         Icon(
             imageVector = Icons.Filled.KeyboardArrowDown,
@@ -246,7 +229,7 @@ private fun ExpandedCard(
     onResetTimer: () -> Unit,
     onSetDuration: (Long) -> Unit,
     onSplit: () -> Unit,
-    onOpenUpdate: () -> Unit,
+    onOpenPanel: () -> Unit,
     onTogglePlay: () -> Unit
 ) {
     Column(
@@ -256,29 +239,15 @@ private fun ExpandedCard(
             .padding(14.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            CapsuleGlyph(26.dp, appearance)
+            CapsuleGlyph(24.dp, appearance)
             Spacer(Modifier.width(8.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = "ReuXs",
-                    color = ReuXsColors.TextPrimary,
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-                Text(
-                    text = "MATERIAL CAPSULE · v${BuildConfig.VERSION_NAME}",
-                    color = ReuXsColors.TextMuted,
-                    fontSize = 7.sp,
-                    letterSpacing = 1.2.sp
-                )
-            }
             Text(
-                text = formatClock(),
+                text = "ReuXs",
                 color = ReuXsColors.TextPrimary,
                 fontSize = 13.sp,
-                fontFamily = FontFamily.Monospace
+                fontWeight = FontWeight.SemiBold,
+                modifier = Modifier.weight(1f)
             )
-            Spacer(Modifier.width(2.dp))
             Icon(
                 imageVector = Icons.Filled.KeyboardArrowUp,
                 contentDescription = "Daralt",
@@ -290,27 +259,7 @@ private fun ExpandedCard(
             )
         }
 
-        Spacer(Modifier.height(10.dp))
-
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            StatusPill(appearance)
-            Spacer(Modifier.width(6.dp))
-            InfoPill(text = batteryLabel(snapshot), accent = false)
-            if (snapshot.notifications > 0) {
-                Spacer(Modifier.width(6.dp))
-                InfoPill(text = "${snapshot.notifications} bildirim", accent = false)
-            }
-            Spacer(Modifier.weight(1f))
-            if (snapshot.update.checked && !snapshot.updateAvailable && snapshot.update.error == null) {
-                Text(
-                    text = "sürüm güncel",
-                    color = ReuXsColors.TextMuted,
-                    fontSize = 9.sp
-                )
-            }
-        }
-
-        if (settings.musicEnabled) {
+        if (settings.capsulePanels.music && settings.musicEnabled) {
             Spacer(Modifier.height(8.dp))
             MusicCard(
                 track = track,
@@ -320,39 +269,28 @@ private fun ExpandedCard(
             )
         }
 
-        Spacer(Modifier.height(8.dp))
-
-        TimerCard(
-            snapshot = snapshot,
-            appearance = appearance,
-            onToggleTimer = onToggleTimer,
-            onResetTimer = onResetTimer,
-            onSetDuration = onSetDuration
-        )
-
-        Spacer(Modifier.height(8.dp))
-
-        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            ActionTile(
-                label = "Böl",
-                onClick = onSplit,
-                modifier = Modifier.weight(1f)
-            )
-            ActionTile(
-                label = "Odak 25",
-                onClick = { onSetDuration(25 * 60_000L) },
-                modifier = Modifier.weight(1f)
-            )
-            ActionTile(
-                label = "Güncelleme",
-                onClick = onOpenUpdate,
-                modifier = Modifier.weight(1f)
+        if (settings.capsulePanels.timer) {
+            Spacer(Modifier.height(8.dp))
+            TimerCard(
+                snapshot = snapshot,
+                appearance = appearance,
+                onToggleTimer = onToggleTimer,
+                onResetTimer = onResetTimer,
+                onSetDuration = onSetDuration
             )
         }
 
-        if (snapshot.updateAvailable) {
+        if (settings.capsulePanels.actions) {
             Spacer(Modifier.height(8.dp))
-            UpdateBadge(update = snapshot.update, appearance = appearance, onOpenUpdate = onOpenUpdate)
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                ActionTile(label = "Böl", onClick = onSplit, modifier = Modifier.weight(1f))
+                ActionTile(
+                    label = "Odak 25",
+                    onClick = { onSetDuration(25 * 60_000L) },
+                    modifier = Modifier.weight(1f)
+                )
+                ActionTile(label = "Panel", onClick = onOpenPanel, modifier = Modifier.weight(1f))
+            }
         }
     }
 }
@@ -626,6 +564,7 @@ private fun SplitRow(
     snapshot: CapsuleSnapshot,
     settings: ReuxsSettings,
     appearance: CapsuleAppearance,
+    track: NowPlaying?,
     onMerge: () -> Unit,
     onToggleTimer: () -> Unit
 ) {
@@ -639,22 +578,25 @@ private fun SplitRow(
                 .padding(horizontal = 12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            CapsuleGlyph(24.dp, appearance)
+            AlbumThumb(track, appearance, size = 24.dp)
             Spacer(Modifier.width(8.dp))
-            Column {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = formatClock(),
+                    text = track?.title ?: "ReuXs",
                     color = ReuXsColors.TextPrimary,
-                    fontSize = 13.sp,
-                    fontFamily = FontFamily.Monospace
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1
                 )
-                Text(
-                    text = batteryLabel(snapshot),
-                    color = ReuXsColors.TextMuted,
-                    fontSize = 9.sp
-                )
+                if (track != null) {
+                    Text(
+                        text = track.artist.ifBlank { "Bilinmeyen sanatçı" },
+                        color = ReuXsColors.TextMuted,
+                        fontSize = 8.sp,
+                        maxLines = 1
+                    )
+                }
             }
-            Spacer(Modifier.weight(1f))
             Icon(
                 imageVector = Icons.Filled.KeyboardArrowUp,
                 contentDescription = "Birleştir",
@@ -724,46 +666,6 @@ private fun CapsuleGlyph(size: Dp, appearance: CapsuleAppearance) {
 }
 
 @Composable
-private fun StatusPill(appearance: CapsuleAppearance) {
-    Row(
-        modifier = Modifier
-            .clip(CircleShape)
-            .background(Color(0x66450A0A))
-            .border(1.dp, appearance.border, CircleShape)
-            .padding(horizontal = 8.dp, vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Box(
-            modifier = Modifier
-                .size(5.dp)
-                .clip(CircleShape)
-                .background(appearance.accent)
-        )
-        Spacer(Modifier.width(5.dp))
-        Text(
-            text = "ReuXs AKTİF",
-            color = appearance.accentSoft,
-            fontSize = 7.5.sp,
-            letterSpacing = 1.2.sp
-        )
-    }
-}
-
-@Composable
-private fun InfoPill(text: String, accent: Boolean) {
-    Text(
-        text = text,
-        color = if (accent) ReuXsColors.CrimsonSoft else ReuXsColors.TextSecondary,
-        fontSize = 9.sp,
-        modifier = Modifier
-            .clip(CircleShape)
-            .background(Color(0x4D000000))
-            .border(1.dp, Color(0x14FFFFFF), CircleShape)
-            .padding(horizontal = 8.dp, vertical = 4.dp)
-    )
-}
-
-@Composable
 private fun ActionTile(label: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Text(
         text = label,
@@ -815,47 +717,3 @@ private fun PresetChip(label: String, onClick: () -> Unit) {
     )
 }
 
-@Composable
-private fun UpdateBadge(
-    update: UpdateInfo,
-    appearance: CapsuleAppearance,
-    onOpenUpdate: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(14.dp))
-            .background(
-                Brush.horizontalGradient(
-                    listOf(Color(0xE6450A0A), Color(0xE62A0A0A), Color(0xCC000000))
-                )
-            )
-            .border(1.dp, appearance.border.copy(alpha = 0.9f), RoundedCornerShape(14.dp))
-            .clickable { onOpenUpdate() }
-            .padding(horizontal = 10.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = "Güncelleme Mevcut",
-                color = ReuXsColors.TextPrimary,
-                fontSize = 11.sp,
-                fontWeight = FontWeight.SemiBold
-            )
-            Text(
-                text = "v${update.latestVersion ?: "?"} · indirmek için dokun",
-                color = ReuXsColors.TextMuted,
-                fontSize = 9.sp
-            )
-        }
-        Icon(
-            imageVector = Icons.Filled.Refresh,
-            contentDescription = null,
-            tint = appearance.accent,
-            modifier = Modifier.size(16.dp)
-        )
-    }
-}
-
-private fun batteryLabel(snapshot: CapsuleSnapshot): String =
-    snapshot.batteryPercent?.let { "$it%" } ?: "AC"

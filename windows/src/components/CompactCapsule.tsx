@@ -1,14 +1,11 @@
 import { motion } from "framer-motion";
-import { formatDuration, type NowPlaying, type UpdateStatus, type VisualizerStyle } from "@core";
-import type { BatteryState } from "../hooks/useBattery";
-import { BatteryIcon, CapsuleGlyph, ChevronDownIcon, MusicIcon, PauseIcon, PlayIcon } from "./icons";
+import { formatDuration, type NowPlaying, type VisualizerStyle } from "@core";
+import { CapsuleGlyph, ChevronDownIcon, MusicIcon, PauseIcon, PlayIcon } from "./icons";
 import { Visualizer } from "./Visualizer";
 
 interface CompactCapsuleProps {
   remainingMs: number;
   running: boolean;
-  battery: BatteryState;
-  update: UpdateStatus;
   track: NowPlaying | null;
   accent: string;
   visualizer: boolean;
@@ -18,11 +15,14 @@ interface CompactCapsuleProps {
   onExpand: () => void;
 }
 
+/**
+ * Plain capsule: artwork, what is playing and the three controls that are worth
+ * one tap. Clock, battery and version deliberately stay in the taskbar / in the
+ * control panel — no duplicated system figures here.
+ */
 export function CompactCapsule({
   remainingMs,
   running,
-  battery,
-  update,
   track,
   accent,
   visualizer,
@@ -48,7 +48,7 @@ export function CompactCapsule({
           <img
             src={track.art}
             alt=""
-            className="h-6 w-6 shrink-0 rounded-full object-cover ring-1"
+            className="h-6 w-6 shrink-0 rounded-full object-cover"
             style={{ boxShadow: `0 0 0 1px ${accent}55` }}
           />
         ) : (
@@ -64,9 +64,11 @@ export function CompactCapsule({
           <span className="truncate text-[12.5px] font-semibold tracking-[0.02em] text-ink-50">
             {track ? track.title : "ReuXs"}
           </span>
-          <span className="mt-0.5 truncate text-[8.5px] uppercase tracking-[0.18em] text-ink-500">
-            {track ? track.artist || "Bilinmeyen sanatçı" : "Material Capsule"}
-          </span>
+          {track ? (
+            <span className="mt-0.5 truncate text-[8.5px] uppercase tracking-[0.18em] text-ink-500">
+              {track.artist || "Bilinmeyen sanatçı"}
+            </span>
+          ) : null}
         </span>
       </div>
 
@@ -100,7 +102,7 @@ export function CompactCapsule({
           type="button"
           onClick={onToggleTimer}
           title={running ? "Zamanlayıcıyı duraklat" : "Zamanlayıcıyı başlat"}
-          className="flex h-7 items-center gap-1 rounded-full border border-crimson-500/25 bg-black/40 px-2 font-mono text-[11px] tabular-nums text-zinc-200 transition-colors hover:border-crimson-500/50 hover:text-white"
+          className="flex h-7 items-center gap-1 rounded-full border border-white/10 bg-black/40 px-2 font-mono text-[11px] tabular-nums text-zinc-200 transition-colors hover:border-white/25 hover:text-white"
         >
           {running ? (
             <PauseIcon className="h-2.5 w-2.5" style={{ color: accent }} />
@@ -109,20 +111,6 @@ export function CompactCapsule({
           )}
           {formatDuration(remainingMs)}
         </button>
-
-        {!track ? (
-          <span className="flex h-7 items-center gap-1 rounded-full border border-white/5 bg-black/30 px-2 text-[10.5px] text-ink-400">
-            <BatteryIcon className="h-3 w-3 text-crimson-400/80" />
-            {battery.level === null ? "AC" : `${battery.level}%`}
-          </span>
-        ) : null}
-
-        {update.available ? (
-          <span
-            title={`Güncelleme mevcut: v${update.latestVersion}`}
-            className="h-1.5 w-1.5 rounded-full bg-crimson-500 shadow-[0_0_8px_rgba(239,68,68,0.9)]"
-          />
-        ) : null}
 
         <button
           type="button"

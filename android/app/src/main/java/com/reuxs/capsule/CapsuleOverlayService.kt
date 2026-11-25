@@ -10,7 +10,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ServiceInfo
 import android.graphics.PixelFormat
-import android.net.Uri
 import android.os.BatteryManager
 import android.os.Build
 import android.os.IBinder
@@ -197,9 +196,7 @@ class CapsuleOverlayService : Service() {
                             onResetTimer = CapsuleRuntime::resetTimer,
                             onSetDuration = CapsuleRuntime::setTimerDuration,
                             onSplit = { CapsuleRuntime.dispatch(CapsuleEvent.Split) },
-                            onOpenUpdate = {
-                                openUrl(snapshot.update.apkUrl ?: snapshot.update.downloadUrl)
-                            },
+                            onOpenPanel = { openPanel() },
                             onTogglePlay = { MediaMonitor.togglePlay() }
                         )
                     }
@@ -241,11 +238,11 @@ class CapsuleOverlayService : Service() {
         }
     }
 
-    private fun openUrl(url: String) {
-        if (url.isBlank()) return
+    /** Opens the control panel: every setting and update lives there. */
+    private fun openPanel() {
         runCatching {
             startActivity(
-                Intent(Intent.ACTION_VIEW, Uri.parse(url))
+                Intent(this, MainActivity::class.java)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )
         }

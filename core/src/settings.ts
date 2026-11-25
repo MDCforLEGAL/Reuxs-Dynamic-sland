@@ -13,6 +13,13 @@ export type ThemeMode = (typeof THEME_MODES)[number];
 export const VISUALIZER_STYLES = ["bars", "wave"] as const;
 export type VisualizerStyle = (typeof VISUALIZER_STYLES)[number];
 
+/** Modules the expanded capsule may show. The panel owns these switches. */
+export interface CapsulePanels {
+  music: boolean;
+  timer: boolean;
+  actions: boolean;
+}
+
 export interface ReuxsSettings {
   /** Schema version, bumped when a migration is needed. */
   version: number;
@@ -50,6 +57,10 @@ export interface ReuxsSettings {
   autostart: boolean;
   /** Temporarily hide the capsule without closing the app. */
   capsuleHidden: boolean;
+  /** What the capsule shows when it is tapped open. */
+  capsulePanels: CapsulePanels;
+  /** Start the capsule as soon as its permission is granted (Android). */
+  startOnPermission: boolean;
 }
 
 export const DEFAULT_SETTINGS: ReuxsSettings = {
@@ -68,7 +79,9 @@ export const DEFAULT_SETTINGS: ReuxsSettings = {
   visualizer: true,
   visualizerStyle: "bars",
   autostart: false,
-  capsuleHidden: false
+  capsuleHidden: false,
+  capsulePanels: { music: true, timer: true, actions: true },
+  startOnPermission: true
 };
 
 export const SETTINGS_STORAGE_KEY = "reuxs.settings.v1";
@@ -115,7 +128,13 @@ export function normalizeSettings(raw: Partial<ReuxsSettings> | null | undefined
       ? (source.visualizerStyle as VisualizerStyle)
       : DEFAULT_SETTINGS.visualizerStyle,
     autostart: source.autostart ?? DEFAULT_SETTINGS.autostart,
-    capsuleHidden: source.capsuleHidden ?? DEFAULT_SETTINGS.capsuleHidden
+    capsuleHidden: source.capsuleHidden ?? DEFAULT_SETTINGS.capsuleHidden,
+    capsulePanels: {
+      music: source.capsulePanels?.music ?? DEFAULT_SETTINGS.capsulePanels.music,
+      timer: source.capsulePanels?.timer ?? DEFAULT_SETTINGS.capsulePanels.timer,
+      actions: source.capsulePanels?.actions ?? DEFAULT_SETTINGS.capsulePanels.actions
+    },
+    startOnPermission: source.startOnPermission ?? DEFAULT_SETTINGS.startOnPermission
   };
 }
 

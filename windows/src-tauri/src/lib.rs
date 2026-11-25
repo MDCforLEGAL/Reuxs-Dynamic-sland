@@ -161,6 +161,56 @@ fn set_autostart(enabled: bool) -> Result<(), String> {
     }
 }
 
+/// Creates a desktop + Start menu shortcut that launches ReuXs.
+#[tauri::command]
+fn create_shortcut() -> Result<String, String> {
+    #[cfg(target_os = "windows")]
+    {
+        use std::os::windows::process::CommandExt;
+
+        let exe = std::env::current_exe().map_err(|error| error.to_string())?;
+        let target = exe.display().to_string().replace('\'', "''");
+        let script = format!(
+            "$ws = New-Object -ComObject WScript.Shell; \
+             $target = '{target}'; \
+             $desktop = [Environment]::GetFolderPath('Desktop'); \
+             $link = $ws.CreateShortcut((Join-Path $desktop 'ReuXs.lnk')); \
+             $link.TargetPath = $target; \
+             $link.WorkingDirectory = Split-Path $target; \
+             $link.Description = 'ReuXs Material Capsule'; \
+             $link.Save(); \
+             $programs = Join-Path ([Environment]::GetFolderPath('StartMenu')) 'Programs'; \
+             $start = $ws.CreateShortcut((Join-Path $programs 'ReuXs.lnk')); \
+             $start.TargetPath = $target; \
+             $start.WorkingDirectory = Split-Path $target; \
+             $start.Save(); \
+             Write-Output $desktop"
+        );
+
+        let output = std::process::Command::new("powershell")
+            .args([
+                "-NoProfile",
+                "-NonInteractive",
+                "-WindowStyle",
+                "Hidden",
+                "-Command",
+                &script,
+            ])
+            .creation_flags(0x0800_0000) // CREATE_NO_WINDOW
+            .output()
+            .map_err(|error| error.to_string())?;
+
+        if !output.status.success() {
+            return Err("shortcut creation failed".into());
+        }
+        return Ok(String::from_utf8_lossy(&output.stdout).trim().to_string());
+    }
+    #[cfg(not(target_os = "windows"))]
+    {
+        Err("shortcuts are only created on Windows".into())
+    }
+}
+
 /// Opens an http(s) URL in the user's default browser.
 #[tauri::command]
 fn open_external_url(url: String) -> Result<(), String> {
@@ -225,7 +275,8 @@ pub fn run() {
             reset_capsule_layout,
             open_settings,
             set_capsule_visible,
-            set_autostart
+            set_autostart,
+            create_shortcut
         ])
         .setup(|app| {
             if let Some(window) = app.get_webview_window("main") {

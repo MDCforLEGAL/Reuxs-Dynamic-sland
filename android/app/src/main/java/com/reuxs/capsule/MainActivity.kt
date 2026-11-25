@@ -1,7 +1,11 @@
 package com.reuxs.capsule
 
 import android.content.Intent
+import android.content.pm.ShortcutInfo
+import android.content.pm.ShortcutManager
+import android.graphics.drawable.Icon
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import androidx.activity.ComponentActivity
@@ -118,6 +122,20 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /** Pins a launcher shortcut that opens this control panel directly. */
+    private fun addShortcut() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+        val manager = getSystemService(ShortcutManager::class.java) ?: return
+        if (!manager.isRequestPinShortcutSupported) return
+        val shortcut = ShortcutInfo.Builder(this, "reuxs-panel")
+            .setShortLabel("ReuXs")
+            .setLongLabel("ReuXs Kontrol Paneli")
+            .setIcon(Icon.createWithResource(this, R.mipmap.ic_launcher))
+            .setIntent(Intent(this, MainActivity::class.java).setAction(Intent.ACTION_MAIN))
+            .build()
+        runCatching { manager.requestPinShortcut(shortcut, null) }
+    }
+
     /* --------------------------------------------------------------- panel */
 
     @Composable
@@ -149,6 +167,15 @@ class MainActivity : ComponentActivity() {
             }
             lifecycleOwner.lifecycle.addObserver(observer)
             onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+        }
+
+        // "İzin verilince otomatik başlat": no second tap after the permission
+        // dialog, the capsule is already on screen when the panel returns.
+        LaunchedEffect(overlayGranted, settings.startOnPermission) {
+            if (overlayGranted && settings.startOnPermission && !capsuleRunning) {
+                startCapsule()
+                capsuleRunning = true
+            }
         }
 
         LaunchedEffect(Unit) {
@@ -227,9 +254,7 @@ class MainActivity : ComponentActivity() {
                 onResetTimer = CapsuleRuntime::resetTimer,
                 onSetDuration = CapsuleRuntime::setTimerDuration,
                 onSplit = { CapsuleRuntime.dispatch(CapsuleEvent.Split) },
-                onOpenUpdate = {
-                    openExternal(snapshot.update.apkUrl ?: snapshot.update.downloadUrl)
-                },
+                onOpenPanel = { },
                 onTogglePlay = { MediaMonitor.togglePlay() }
             )
 
@@ -280,6 +305,42 @@ class MainActivity : ComponentActivity() {
                         fontSize = 13.sp
                     )
                 }
+            }
+
+            SettingsCard(
+                title = "Kapsül içeriği",
+                subtitle = "Kapsüle dokununca hangi kartlar açılsın? Kapsül sade kalır."
+            ) {
+                ToggleRow(
+                    label = "Müzik kartı",
+                    description = "Kapak, şarkı adı, ilerleme ve oynat/duraklat.",
+                    checked = settings.capsulePanels.music,
+                    onChange = { value ->
+                        SettingsStore.update {
+                            it.copy(capsulePanels = it.capsulePanels.copy(music = value))
+                        }
+                    }
+                )
+                ToggleRow(
+                    label = "Zamanlayıcı kartı",
+                    description = "Geri sayım, hazır süreler ve sıfırlama.",
+                    checked = settings.capsulePanels.timer,
+                    onChange = { value ->
+                        SettingsStore.update {
+                            it.copy(capsulePanels = it.capsulePanels.copy(timer = value))
+                        }
+                    }
+                )
+                ToggleRow(
+                    label = "Hızlı eylemler",
+                    description = "Böl, Odak 25 ve Panel düğmeleri.",
+                    checked = settings.capsulePanels.actions,
+                    onChange = { value ->
+                        SettingsStore.update {
+                            it.copy(capsulePanels = it.capsulePanels.copy(actions = value))
+                        }
+                    }
+                )
             }
 
             SettingsCard(
@@ -561,6 +622,20 @@ class MainActivity : ComponentActivity() {
                         SettingsStore.update { it.copy(autostart = value) }
                     }
                 )
+                ToggleRow(
+                    label = "İzin verilince otomatik başlat",
+                    description = "Ekran üstü izni açıldığında kapsül kendiliğinden başlar; " +
+                        "düğmeye basman gerekmez.",
+                    checked = settings.startOnPermission,
+                    onChange = { value ->
+                        SettingsStore.update { it.copy(startOnPermission = value) }
+                    }
+                )
+
+                Spacer(Modifier.height(8.dp))
+                PanelButton("Ana ekrana kısayol ekle", primary = false) {
+                    addShortcut()
+                }
 
                 Spacer(Modifier.height(6.dp))
                 PermissionRow(
